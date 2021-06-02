@@ -1,98 +1,63 @@
-#include <stdio.h>
-#include <windows.h>
-#include <Windowsx.h>
+#include <iostream>
 
-LRESULT CALLBACK WindowProc(_In_ HWND Window, 
-							_In_ UINT Message, 
-							_In_ WPARAM wParam, 
-							_In_ LPARAM lParam)
+#include "window.h"
+#include "input/input.h"
+#include "shader.h"
+#include "renderer.h"
+
+#include <glad/glad.h>
+
+int main()
 {
-	LRESULT Result = 0;
+	uint32_t width = 640, height = 480;
 
-	switch (Message)
-	{
-	case WM_MOUSEMOVE:
-	{
-		
-	} break;
-	case WM_QUIT:
-	{
-		// exit(0);
-	} break;
-	case WM_PAINT:
-	{
-		PAINTSTRUCT Paint;
-		HDC DeviceContext = BeginPaint(Window, &Paint);
-		int X = Paint.rcPaint.left;
-		int Y = Paint.rcPaint.top;
-		int Width = Paint.rcPaint.right - X;
-		int Height = Paint.rcPaint.bottom - Y;
-		static DWORD Operation = WHITENESS;
-		PatBlt(DeviceContext, X, Y, Width, Height, Operation);
-		if (Operation == WHITENESS)
-			Operation = BLACKNESS;
-		else
-			Operation = WHITENESS;
-		EndPaint(Window, &Paint);
-	} break;
-	default:
-	{
-		Result = DefWindowProc(Window, Message, wParam, lParam);	
-	}
-	}
-	return Result;
-}
+	Window window(width, height, "Raycaster");
+	Renderer renderer(width, height);
 
-int WINAPI WinMain(	_In_ HINSTANCE Instance, 
-					_In_opt_ HINSTANCE PrevInstance,
-					_In_ LPSTR CommandLine, 
-					_In_ int ShowCode)
-{
-	WNDCLASS WindowClass = {};
+	double lastTime = glfwGetTime();
+	double deltaTime = 0;
+	double unprocessedTime = 0;
+	int fps = 0;
 
-	WindowClass.style = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
-	WindowClass.lpfnWndProc = WindowProc;
-	WindowClass.hInstance = Instance;
-	WindowClass.lpszClassName = L"RaycasterWindowClass";
-
-	if (!RegisterClass(&WindowClass))
+	while (!window.IsClosed())
 	{
-		// TODO: Handle this
-	}
+		double currentTime = glfwGetTime();
+		deltaTime = currentTime - lastTime;
+		unprocessedTime += deltaTime;
+		lastTime = currentTime;
 
-	HWND WindowHandle =  CreateWindowExA(
-										0,
-										"RaycasterWindowClass",
-										"Raycaster",
-										WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-										CW_USEDEFAULT,
-										CW_USEDEFAULT,
-										CW_USEDEFAULT,
-										CW_USEDEFAULT,
-										0,
-										0,
-										Instance,
-										0);
-	if (!WindowHandle)
-	{
-
-	}
-
-	for(;;)
-	{
-		MSG Message;
-		BOOL MessageResult = GetMessage(&Message, 0, 0, 0);
-		if (MessageResult > 0)
+		if (unprocessedTime >= 1.0)
 		{
-			TranslateMessage(&Message);
-			DispatchMessage(&Message);
+			std::cout << "FPS: " << fps << std::endl;
+			fps = 0;
+			unprocessedTime = 0;
 		}
-		else
-		{
-			break;
-		}
-	}
 
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		for (int i = 0; i < height; i++)
+		{
+			for (int j = 0; j < width; j++)
+			{
+				if(i == j)
+					renderer.Draw(j, i, glm::ivec3(0));
+				else
+					renderer.Draw(j, i, glm::ivec3(255, 100, 120));
+			}
+		}
+
+		if(Keyboard::IsKeyPressed(GLFW_KEY_ESCAPE))
+			window.Close();
+
+		int error = glGetError();
+		if (error)
+			std::cout << "OpenGL ERROR: " << error << std::endl;
+
+		renderer.Flush();
+
+		window.Update();
+		fps++;
+	}
 
 	return 0;
 }
