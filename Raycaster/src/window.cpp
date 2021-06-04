@@ -36,6 +36,7 @@ void Window::Init()
 	glfwSetCursorPosCallback(m_GLFWwindow, cursor_position_callback);
 	glfwSetMouseButtonCallback(m_GLFWwindow, mouse_button_callback);
 	glfwSetKeyCallback(m_GLFWwindow, key_callback);
+	glfwSetInputMode(m_GLFWwindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	glfwSwapInterval(0);
 

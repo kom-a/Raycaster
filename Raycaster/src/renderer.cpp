@@ -23,12 +23,13 @@ Renderer::Renderer(uint32_t width, uint32_t height)
 
 	float vertices[] =
 	{
-		-1.0f, -1.0f, 0.0f,		0.0f, 0.0f,
-		-1.0f,  1.0f, 0.0f,		0.0f, 1.0f,
-		 1.0f,  1.0f, 0.0f,		1.0f, 1.0f,
-		 1.0f,  1.0f, 0.0f,		1.0f, 1.0f,
-		 1.0f, -1.0f, 0.0f,		1.0f, 0.0f,
-		-1.0f, -1.0f, 0.0f,		0.0f, 0.0f,
+		-1.0f, -1.0f, 0.0f,		0.0f, 1.0f,
+		-1.0f,  1.0f, 0.0f,		0.0f, 0.0f,
+		 1.0f,  1.0f, 0.0f,		1.0f, 0.0f,
+
+		 1.0f,  1.0f, 0.0f,		1.0f, 0.0f,
+		 1.0f, -1.0f, 0.0f,		1.0f, 1.0f,
+		-1.0f, -1.0f, 0.0f,		0.0f, 1.0f,
 	};
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
@@ -49,12 +50,44 @@ Renderer::~Renderer()
 	delete m_Shader;
 }
 
+void Renderer::Clear()
+{
+	memset(m_Buffer, 0, m_BufferSize);
+	glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void Renderer::FillRect(int x, int y, int width, int height, const glm::ivec3& color)
+{
+	for (int i = y; i < y + height; i++)
+	{
+		for (int j = x; j < x + width; j++)
+		{
+			if (i >= 0 && i < m_Height && j >= 0 && j < m_Width)
+			{
+				Draw(j, i, color);
+			}
+		}
+	}
+}
+
 void Renderer::Draw(int x, int y, const glm::ivec3& color)
 {
 	int index = (y * m_Width + x) * 3;
-	m_Buffer[index + 0] = color.r;
-	m_Buffer[index + 1] = color.g;
-	m_Buffer[index + 2] = color.b;
+	if (index >= 0 && index < m_BufferSize)
+	{
+		m_Buffer[index + 0] = color.r;
+		m_Buffer[index + 1] = color.g;
+		m_Buffer[index + 2] = color.b;
+	}
+	
+}
+
+void Renderer::DrawWall(int x, int height, const glm::ivec3& color)
+{
+	int top = m_Height / 2 - height / 2;
+	for (int i = 0; i < height; i++)
+		Draw(x, top + i, color);
+	
 }
 
 void Renderer::Flush()
