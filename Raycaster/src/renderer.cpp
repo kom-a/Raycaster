@@ -52,7 +52,7 @@ Renderer::~Renderer()
 
 void Renderer::Clear()
 {
-	memset(m_Buffer, 0, m_BufferSize);
+	memset(m_Buffer, 200, m_BufferSize);
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 

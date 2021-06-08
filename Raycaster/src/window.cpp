@@ -63,6 +63,9 @@ void  Window::Update()
 {
 	glfwPollEvents();
 
+	if (Keyboard::IsKeyPressed(GLFW_KEY_ESCAPE))
+		Close();
+
 	int error = glGetError();
 	if (error != 0)
 		std::cout << "OpenGL error: " << error << std::endl;

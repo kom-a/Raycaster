@@ -5,14 +5,12 @@
 static constexpr float PI = 3.14159265359f;
 
 Player::Player(float x, float y, float angle)
-	: m_Position(x, y), m_Angle(angle), m_Speed(2.5f), m_Camera(nullptr), m_LastMouseX(0), m_YOffset(0)
+	: m_Position(x, y), m_Angle(angle), m_Speed(2.5f), m_LastMouseX(0), m_LastMouseY(0), m_YOffset(0)
 {
-
 }
 
 Player::~Player()
 {
-
 }
 
 void Player::Update(const double& deltaTime)
@@ -20,6 +18,10 @@ void Player::Update(const double& deltaTime)
 	double speed = m_Speed * deltaTime;
 	glm::vec2 moveDirection(0);
 
+	if (Keyboard::IsKeyPressed(GLFW_KEY_LEFT_SHIFT))
+	{
+		speed *= 4;
+	}
 	if (Keyboard::IsKeyPressed(GLFW_KEY_W))
 	{
 		moveDirection += glm::vec2(glm::cos(m_Angle), glm::sin(m_Angle));
