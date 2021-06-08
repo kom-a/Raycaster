@@ -10,6 +10,7 @@ std::string FileManager::ReadFile(const char* filepath)
 	{
 		std::cout << "Failed to open \"" << filepath << "\"" << std::endl;
 		assert(0);
+		return "";
 	}
 	fseek(file, 0, SEEK_END);
 	long length = ftell(file);
