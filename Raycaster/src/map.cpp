@@ -34,7 +34,7 @@ Map::Map(const char* filename)
 	infile.close();
 }
 
-char& Map::operator[](size_t index)
+const char& Map::operator[](size_t index) const
 {
 	return m_Data[index];
 }
