@@ -9,6 +9,7 @@
 #include "map.h"
 #include "player.h"
 #include "spritesheet.h"
+#include "sprite.h"
 
 #include <glad/glad.h>
 
@@ -29,6 +30,9 @@ int main()
 
 	SpriteSheet sheet("res/spritesheet.bmp", 64, 64);
 	Map map("res/maps/textureTestMap.rcm");
+	
+	Sprite sprite("res/tronchungo3.png", 3, 4);
+	Sprite sprite2("res/Warrior_Idle_1.png", 5, 2);
 
 	while (!window.IsClosed())
 	{
@@ -79,16 +83,18 @@ int main()
 
 			for (size_t y = 0; y < wallHeight; y++)
 			{
-				size_t mappedIndex = ((int)((float)y / wallHeight * texture.height)) * 4;
+				size_t mappedIndex = ((int)((float)y / wallHeight * texture.height)) * 3;
 				int r = column[mappedIndex + 0];
 				int g = column[mappedIndex + 1];
 				int b = column[mappedIndex + 2];
 
-				renderer.Draw(x, top + y + player.GetYOffset(), glm::ivec3(r, g, b));
+				renderer.Draw(x, top + y, glm::ivec3(r, g, b));
 			}
 		}
-		
 
+		renderer.DrawSprite(sprite, player);
+		renderer.DrawSprite(sprite2, player);
+		
 		int error = glGetError();
 		if (error)
 			std::cout << "OpenGL ERROR: " << error << std::endl;

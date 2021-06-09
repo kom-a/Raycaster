@@ -2,6 +2,8 @@
 
 #include "glm/glm.hpp"
 #include "shader.h"
+#include "sprite.h"
+#include "player.h"
 
 class Renderer
 {
@@ -10,9 +12,8 @@ public:
 	~Renderer();
 
 	void Clear();
-	void FillRect(int x, int y, int width, int height, const glm::ivec3& color);
 	void Draw(int x, int y, const glm::ivec3& color);
-	void DrawWall(int x, int height, const glm::ivec3& color);
+	void DrawSprite(const Sprite& sprite, const Player& player);
 	void Flush();
 
 private:

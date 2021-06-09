@@ -13,7 +13,6 @@ public:
 	glm::vec2 CastRay(const glm::vec2& origin, const glm::vec2& direction, const Map& map, char* tex);
 
 	inline const float& GetFOV() const { return m_FOV; }
-
 private:
 	float m_FOV; // Field of view
 };

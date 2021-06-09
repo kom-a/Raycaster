@@ -10,7 +10,7 @@ struct Texture
 
 	const uint8_t* GetColumn(size_t col)
 	{
-		return pixels + height * col * 4;
+		return pixels + height * col * 3;
 	}
 };
 
