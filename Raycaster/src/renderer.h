@@ -4,6 +4,7 @@
 #include "shader.h"
 #include "sprite.h"
 #include "player.h"
+#include "spritesheet.h"
 
 class Renderer
 {
@@ -13,6 +14,7 @@ public:
 
 	void Clear();
 	void Draw(int x, int y, const glm::ivec3& color);
+	void DrawWall(int x, float distance, const Texture& texture, int column, const Player& player);
 	void DrawSprite(const Sprite& sprite, const Player& player);
 	void Flush();
 
@@ -24,4 +26,5 @@ private:
 	uint8_t* m_Buffer;
 	size_t m_BufferSize;
 	Shader* m_Shader;
+	float* m_DepthBuffer;
 };

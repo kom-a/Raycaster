@@ -15,6 +15,8 @@ Renderer::Renderer(uint32_t width, uint32_t height)
 	m_Buffer = new uint8_t[m_BufferSize];
 	memset(m_Buffer, 0x00, m_BufferSize);
 
+	m_DepthBuffer = new float[m_Width];
+
 	glGenTextures(1, &m_Texture);
 	glBindTexture(GL_TEXTURE_2D, m_Texture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, m_Buffer);
@@ -70,50 +72,49 @@ void Renderer::Draw(int x, int y, const glm::ivec3& color)
 	}
 }
 
-#if 0
-void Renderer::DrawSprite(const Sprite& sprite, const Player& player)
+void Renderer::DrawWall(int x, float distance, const Texture& texture, int col, const Player& player)
 {
-	float sprite_dir = atan2(sprite.GetPosition().y - player.GetPosition().y, sprite.GetPosition().x - player.GetPosition().x);
+	const float fov = (float)M_PI / 3.0f;
+	float angle = (player.GetAngle() - fov / 2.0f) + (float)x / m_Width * fov;
+	uint32_t wallHeight = (uint32_t)(m_Height / (distance * glm::cos(angle - player.GetAngle())));
+	int top = m_Height / 2 - wallHeight / 2;
 
-	while (sprite_dir - player.GetAngle() > (float)M_PI) sprite_dir -= 2 * M_PI;
-	while (sprite_dir - player.GetAngle() < (float)-M_PI) sprite_dir += 2 * M_PI;
+	const uint8_t* column = texture.GetColumn(col);
 
-	float sprite_dist = glm::length(player.GetPosition() - sprite.GetPosition());
-	size_t sprite_screen_size = std::min(2000, static_cast<int>(m_Height / sprite_dist));
+	for (int y = 0; y < wallHeight; y++)
+	{
+		int r = column[static_cast<int>((float)y / wallHeight * texture.height) * 3 + 0];
+		int g = column[static_cast<int>((float)y / wallHeight * texture.height) * 3 + 1];
+		int b = column[static_cast<int>((float)y / wallHeight * texture.height) * 3 + 2];
 
-	// TODO: remove hard coded fov
-	const float FOV = (float)M_PI / 3.0f;
-	int h_offset = (sprite_dir - player.GetAngle()) * (m_Width / 2) / (FOV) + (m_Width / 2) / 2 - sprite_screen_size / 2.0f;
-	int v_offset = m_Height / 2 - sprite_screen_size / 2.0f;
-
-	for (size_t i = 0; i < sprite_screen_size; i++) {
-		if (h_offset + int(i) < 0 || h_offset + i >= m_Width / 2) continue;
-		for (size_t j = 0; j < sprite_screen_size; j++) {
-			if (v_offset + int(j) < 0 || v_offset + j >= m_Height) continue;
-			Draw(m_Width / 2 + h_offset + i, v_offset + j, glm::ivec3(0));
-		}
+		Draw(x, top + y, glm::ivec3(r, g, b));
 	}
+
+	m_DepthBuffer[x] = distance;
 }
-#endif
 
 void Renderer::DrawSprite(const Sprite& sprite, const Player& player)
 {
 	glm::vec2 sprite_dir = sprite.GetPosition() - player.GetPosition();
 	float sprite_angle = glm::atan(sprite_dir.y, sprite_dir.x);
+	float sprite_distance = glm::length(sprite_dir);
 	const float fov = (float)M_PI / 3.0;
 
 	while (sprite_angle - player.GetAngle() > (float)M_PI) sprite_angle -= 2 * M_PI;
 	while (sprite_angle - player.GetAngle() < (float)-M_PI) sprite_angle += 2 * M_PI;
 
 	int x_center_of_sprite_on_screen = static_cast<int>((sprite_angle - player.GetAngle() + fov / 2) * m_Width / fov);
-	size_t sprite_screen_size = std::min(1000, static_cast<int>(m_Height / glm::length(sprite_dir)));
+	size_t sprite_screen_size = std::min(1000, static_cast<int>(m_Height / sprite_distance));
 
 	int top_y = m_Height / 2 - sprite_screen_size / 2;
+
 	for (int x = 0; x < sprite_screen_size; x++)
 	{
 		int x_coord_on_screen = x_center_of_sprite_on_screen - sprite_screen_size / 2 + x;
 		if (x_coord_on_screen >= (int)m_Width) break;
 		if (x_coord_on_screen < 0) continue;
+		if (sprite_distance > m_DepthBuffer[x_coord_on_screen])	continue;
+
 		const uint8_t* column = sprite[static_cast<int>((float)x / sprite_screen_size * sprite.GetSize().x)];
 		for (int y = 0; y < sprite_screen_size; y++)
 		{

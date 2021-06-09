@@ -8,7 +8,7 @@ struct Texture
 	uint8_t* pixels;
 	uint32_t width, height;
 
-	const uint8_t* GetColumn(size_t col)
+	const uint8_t* GetColumn(size_t col) const
 	{
 		return pixels + height * col * 3;
 	}

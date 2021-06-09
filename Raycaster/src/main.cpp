@@ -20,11 +20,6 @@ int main()
 	Window window(width, height, "Raycaster");
 	Renderer renderer(width, height);
 
-	double lastTime = glfwGetTime();
-	double deltaTime = 0;
-	double unprocessedTime = 0;
-	int fps = 0;
-
 	Player player(6.01f, 3.1f, 0.0f);
 	Camera camera((float)M_PI / 3.0f);
 
@@ -33,6 +28,11 @@ int main()
 	
 	Sprite sprite("res/tronchungo3.png", 3, 4);
 	Sprite sprite2("res/Warrior_Idle_1.png", 5, 2);
+
+	double lastTime = glfwGetTime();
+	double deltaTime = 0;
+	double unprocessedTime = 0;
+	int fps = 0;
 
 	while (!window.IsClosed())
 	{
@@ -74,22 +74,9 @@ int main()
 			}
 
 			float distance = glm::length(hit - player.GetPosition());
-
-			uint32_t wallHeight = (uint32_t)(height / (distance * cos(angle - player.GetAngle())));
-			int top = height / 2 - wallHeight / 2;
-
 			Texture texture = sheet[tex];
-			const uint8_t* column = texture.GetColumn(texColumn);
 
-			for (size_t y = 0; y < wallHeight; y++)
-			{
-				size_t mappedIndex = ((int)((float)y / wallHeight * texture.height)) * 3;
-				int r = column[mappedIndex + 0];
-				int g = column[mappedIndex + 1];
-				int b = column[mappedIndex + 2];
-
-				renderer.Draw(x, top + y, glm::ivec3(r, g, b));
-			}
+			renderer.DrawWall(x, distance, texture, texColumn, player);
 		}
 
 		renderer.DrawSprite(sprite, player);
