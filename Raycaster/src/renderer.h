@@ -15,6 +15,7 @@ public:
 	void Clear();
 	void Draw(int x, int y, const glm::ivec3& color);
 	void DrawWall(int x, float distance, const Texture& texture, int column, const Player& player);
+	void DrawSky(const Texture& texture, const Player& player);
 	void DrawSprite(const Sprite& sprite, const Player& player);
 	void Flush();
 

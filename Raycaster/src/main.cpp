@@ -10,6 +10,7 @@
 #include "player.h"
 #include "spritesheet.h"
 #include "sprite.h"
+#include "utils/filemanager.h"
 
 #include <glad/glad.h>
 
@@ -23,8 +24,9 @@ int main()
 	Player player(6.01f, 3.1f, 0.0f);
 	Camera camera((float)M_PI / 3.0f);
 
-	SpriteSheet sheet("res/spritesheet.bmp", 64, 64);
-	Map map("res/maps/textureTestMap.rcm");
+	SpriteSheet sheet("res/walltext.png", 64, 64);
+	const Texture* sky = FileManager::LoadTexture("res/sky2.jpg");
+	Map map("res/maps/map.rcm");
 	
 	Sprite sprite("res/tronchungo3.png", 3, 4);
 	Sprite sprite2("res/Warrior_Idle_1.png", 5, 2);
@@ -51,7 +53,8 @@ int main()
 		player.Update(deltaTime);
 
 		renderer.Clear();
-
+		renderer.DrawSky(*sky, player);
+#if 1
 		for (uint32_t x = 0; x < width; x++)
 		{
 			float angle = (player.GetAngle() - camera.GetFOV() / 2.0f) + (float)x / width * camera.GetFOV();
@@ -79,6 +82,8 @@ int main()
 			renderer.DrawWall(x, distance, texture, texColumn, player);
 		}
 
+#endif
+
 		renderer.DrawSprite(sprite, player);
 		renderer.DrawSprite(sprite2, player);
 		
@@ -92,5 +97,6 @@ int main()
 		fps++;
 	}
 
+	delete sky;
 	return 0;
 }

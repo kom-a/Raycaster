@@ -58,6 +58,9 @@ Renderer::~Renderer()
 void Renderer::Clear()
 {
 	memset(m_Buffer, 200, m_BufferSize);
+	for (int i = 0; i < m_Width; i++)
+		m_DepthBuffer[i] = 9999999.0f;
+
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
@@ -89,8 +92,31 @@ void Renderer::DrawWall(int x, float distance, const Texture& texture, int col, 
 
 		Draw(x, top + y, glm::ivec3(r, g, b));
 	}
-
 	m_DepthBuffer[x] = distance;
+}
+
+void Renderer::DrawSky(const Texture& texture, const Player& player)
+{
+	const float fov = (float)M_PI / 3.0f;
+
+	for (int x = 0; x < m_Width; x++)
+	{
+		float angle = (player.GetAngle() - fov / 2.0f) + (float)x / m_Width * fov;
+		while (angle > (float)M_PI * 2) angle -= 2 * M_PI;
+		while (angle  < (float)-M_PI * 2) angle += 2 * M_PI;
+		int xCoord = (int)(angle / (2 * M_PI) * texture.width);
+		if (xCoord < 0) xCoord += texture.width;
+		xCoord %= texture.width;
+		const uint8_t* column = texture.GetColumn(xCoord);
+		for (int y = 0; y < m_Height / 2; y++)
+		{
+			int r = column[(int)((float)y / m_Height / 2 * texture.height) * 3 + 0];
+			int g = column[(int)((float)y / m_Height / 2 * texture.height) * 3 + 1];
+			int b = column[(int)((float)y / m_Height / 2 * texture.height) * 3 + 2];
+
+			Draw(x, y, glm::ivec3(r, g, b));
+		}
+	}
 }
 
 void Renderer::DrawSprite(const Sprite& sprite, const Player& player)
@@ -113,8 +139,7 @@ void Renderer::DrawSprite(const Sprite& sprite, const Player& player)
 		int x_coord_on_screen = x_center_of_sprite_on_screen - sprite_screen_size / 2 + x;
 		if (x_coord_on_screen >= (int)m_Width) break;
 		if (x_coord_on_screen < 0) continue;
-		if (sprite_distance > m_DepthBuffer[x_coord_on_screen])	continue;
-
+		if (sprite_distance > m_DepthBuffer[x_coord_on_screen]) continue;
 		const uint8_t* column = sprite[static_cast<int>((float)x / sprite_screen_size * sprite.GetSize().x)];
 		for (int y = 0; y < sprite_screen_size; y++)
 		{
@@ -127,6 +152,7 @@ void Renderer::DrawSprite(const Sprite& sprite, const Player& player)
 		}
 	}
 }
+
 void Renderer::Flush()
 {
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_Width, m_Height, 0, GL_RGB, GL_UNSIGNED_BYTE, m_Buffer);

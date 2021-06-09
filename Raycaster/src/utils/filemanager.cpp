@@ -3,6 +3,9 @@
 #include <iostream>
 #include <assert.h>
 
+#include "../stb_image.h"
+#include "../spritesheet.h"
+
 std::string FileManager::ReadFile(const char* filepath)
 {
 	FILE* file;
@@ -43,4 +46,14 @@ uint8_t* FileManager::ConvertToColumnMajor(const uint8_t* data, int width, int h
 		}
 	}
 	return columnMajor;
+}
+
+const Texture* FileManager::LoadTexture(const char* filename)
+{
+	Texture* texture = new Texture;
+	int comp;
+	texture->pixels = stbi_load(filename, (int*)&texture->width, (int*)&texture->height, &comp, 3);
+	texture->pixels = ConvertToColumnMajor(texture->pixels, texture->width, texture->height, 3);
+
+	return texture;
 }
