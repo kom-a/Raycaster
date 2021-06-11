@@ -20,7 +20,7 @@ void Player::Update(const double& deltaTime, const Map& map)
 
 	if (Keyboard::IsKeyPressed(GLFW_KEY_LEFT_SHIFT))
 	{
-		speed *= 4;
+		speed *= 1.5;
 	}
 	if (Keyboard::IsKeyPressed(GLFW_KEY_W))
 	{
@@ -43,7 +43,7 @@ void Player::Update(const double& deltaTime, const Map& map)
 
 	m_Angle += (float)(Mouse::GetX() - m_LastMouseX) * 0.0025f;
 	m_LastMouseX = Mouse::GetX();
-	m_YOffset += m_LastMouseY - Mouse::GetY();
+	m_YOffset += (int)(m_LastMouseY - Mouse::GetY());
 	m_LastMouseY = Mouse::GetY();
 
 	if (velocity != glm::vec2(0))
@@ -56,10 +56,7 @@ void Player::Update(const double& deltaTime, const Map& map)
 	glm::ivec2 areaTL = glm::max(glm::min(currentCell, targetCell) - glm::ivec2(1, 1), glm::ivec2(0, 0));
 	glm::ivec2 areaBR = glm::min(glm::max(currentCell, targetCell) + glm::ivec2(1, 1), glm::ivec2(map.GetWidth(), map.GetHeight()));
 
-	float radius = 0.15f;
-#ifdef DEBUG
-	radius = 0.3f;
-#endif
+	float radius = 0.1f;
 
 	glm::ivec2 cell;
 	for (cell.y = areaTL.y; cell.y <= areaBR.y; cell.y++)

@@ -58,7 +58,7 @@ Renderer::~Renderer()
 void Renderer::Clear()
 {
 	memset(m_Buffer, 100, m_BufferSize);
-	for (int i = 0; i < m_Width; i++)
+	for (size_t i = 0; i < m_Width; i++)
 		m_DepthBuffer[i] = 9999999.0f;
 
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -66,7 +66,7 @@ void Renderer::Clear()
 
 void Renderer::Draw(int x, int y, const glm::ivec3& color)
 {
-	int index = (y * m_Width + x) * 3;
+	size_t index = (y * m_Width + x) * 3;
 	if (index >= 0 && index < m_BufferSize)
 	{
 		m_Buffer[index + 0] = color.r;
@@ -81,25 +81,31 @@ void Renderer::DrawWall(int x, float distance, const Texture& texture, int col, 
 	float angle = (player.GetAngle() - fov / 2.0f) + (float)x / m_Width * fov;
 	uint32_t wallHeight = (uint32_t)(m_Height / (distance * glm::cos(angle - player.GetAngle())));
 	int top = m_Height / 2 - wallHeight / 2;
-
 	const uint8_t* column = texture.GetColumn(col);
 
-	for (int y = 0; y < wallHeight; y++)
+	if (wallHeight > 10 * m_Height) wallHeight = 10 * m_Height;
+
+	for (size_t y = 0; y < wallHeight; y++)
 	{
-		int r = column[static_cast<int>((float)y / wallHeight * texture.height) * 3 + 0];
-		int g = column[static_cast<int>((float)y / wallHeight * texture.height) * 3 + 1];
-		int b = column[static_cast<int>((float)y / wallHeight * texture.height) * 3 + 2];
+		int index = static_cast<int>((float)y / wallHeight * texture.height);
+		int r = column[index * 3 + 0];
+		int g = column[index * 3 + 1];
+		int b = column[index * 3 + 2];
 
 		Draw(x, top + y, glm::ivec3(r, g, b));
 	}
-	m_DepthBuffer[x] = distance;
+
+	if (!std::isnan(distance))
+		m_DepthBuffer[x] = distance;
+	else
+		m_DepthBuffer[x] = 0.001f;
 }
 
 void Renderer::DrawSky(const Texture& texture, const Player& player)
 {
 	const float fov = (float)M_PI / 3.0f;
 
-	for (int x = 0; x < m_Width; x++)
+	for (size_t x = 0; x < m_Width; x++)
 	{
 		float angle = (player.GetAngle() - fov / 2.0f) + (float)x / m_Width * fov;
 		while (angle > (float)M_PI * 2) angle -= 2 * M_PI;
@@ -108,7 +114,7 @@ void Renderer::DrawSky(const Texture& texture, const Player& player)
 		if (xCoord < 0) xCoord += texture.width;
 		xCoord %= texture.width;
 		const uint8_t* column = texture.GetColumn(xCoord);
-		for (int y = 0; y < m_Height / 2; y++)
+		for (size_t y = 0; y < m_Height / 2; y++)
 		{
 			int r = column[(int)((float)y / m_Height / 2 * texture.height) * 3 + 0];
 			int g = column[(int)((float)y / m_Height / 2 * texture.height) * 3 + 1];
@@ -134,14 +140,14 @@ void Renderer::DrawSprite(const Sprite& sprite, const Player& player)
 
 	int top_y = m_Height / 2 - sprite_screen_size / 2;
 
-	for (int x = 0; x < sprite_screen_size; x++)
+	for (size_t x = 0; x < sprite_screen_size; x++)
 	{
 		int x_coord_on_screen = x_center_of_sprite_on_screen - sprite_screen_size / 2 + x;
 		if (x_coord_on_screen >= (int)m_Width) break;
 		if (x_coord_on_screen < 0) continue;
 		if (sprite_distance > m_DepthBuffer[x_coord_on_screen]) continue;
 		const uint8_t* column = sprite[static_cast<int>((float)x / sprite_screen_size * sprite.GetSize().x)];
-		for (int y = 0; y < sprite_screen_size; y++)
+		for (size_t y = 0; y < sprite_screen_size; y++)
 		{
 			int r = column[static_cast<int>((float)y / sprite_screen_size * sprite.GetSize().y) * 3 + 0];
 			int g = column[static_cast<int>((float)y / sprite_screen_size * sprite.GetSize().y) * 3 + 1];

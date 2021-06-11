@@ -64,7 +64,6 @@ glm::vec2 Camera::CastRay(const glm::vec2& origin, const glm::vec2& direction, c
 			*tex = map[mapCheck.y * map.GetWidth() + mapCheck.x] - '0';
 			return origin + direction * distance;
 		}
-			
 	}
 
 	return glm::vec2(0, 0);
