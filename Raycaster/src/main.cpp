@@ -24,9 +24,9 @@ int main()
 	Player player(6.01f, 3.1f, 0.0f);
 	Camera camera((float)M_PI / 3.0f);
 
-	SpriteSheet sheet("res/walltext.png", 64, 64);
+	SpriteSheet sheet("res/spritesheet.bmp", 64, 64);
 	const Texture* sky = FileManager::LoadTexture("res/sky2.jpg");
-	Map map("res/maps/map.rcm");
+	Map map("res/maps/textureTestMap.rcm");
 	
 	Sprite sprite("res/tronchungo3.png", 3, 4);
 	Sprite sprite2("res/Warrior_Idle_1.png", 5, 2);
@@ -50,7 +50,7 @@ int main()
 			unprocessedTime = 0;
 		}
 
-		player.Update(deltaTime);
+		player.Update(deltaTime, map);
 
 		renderer.Clear();
 		renderer.DrawSky(*sky, player);
@@ -81,7 +81,6 @@ int main()
 
 			renderer.DrawWall(x, distance, texture, texColumn, player);
 		}
-
 #endif
 
 		renderer.DrawSprite(sprite, player);

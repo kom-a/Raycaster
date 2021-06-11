@@ -57,7 +57,7 @@ Renderer::~Renderer()
 
 void Renderer::Clear()
 {
-	memset(m_Buffer, 200, m_BufferSize);
+	memset(m_Buffer, 100, m_BufferSize);
 	for (int i = 0; i < m_Width; i++)
 		m_DepthBuffer[i] = 9999999.0f;
 

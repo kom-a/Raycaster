@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 
 #include "camera.h"
+#include "map.h"
 
 class Player
 {
@@ -10,12 +11,11 @@ public:
 	Player(float x, float y, float angle);
 	~Player();
 
-	void Update(const double& deltaTime);
+	void Update(const double& deltaTime, const Map& map);
 
 	inline const glm::vec2& GetPosition() const { return m_Position; }
 	inline const float& GetAngle() const { return m_Angle; }
 	inline int GetYOffset() const { return m_YOffset; }
-
 
 private:
 	glm::vec2 m_Position;

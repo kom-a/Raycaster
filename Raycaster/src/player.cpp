@@ -13,10 +13,10 @@ Player::~Player()
 {
 }
 
-void Player::Update(const double& deltaTime)
+void Player::Update(const double& deltaTime, const Map& map)
 {
 	double speed = m_Speed * deltaTime;
-	glm::vec2 moveDirection(0);
+	glm::vec2 velocity(0);
 
 	if (Keyboard::IsKeyPressed(GLFW_KEY_LEFT_SHIFT))
 	{
@@ -24,21 +24,21 @@ void Player::Update(const double& deltaTime)
 	}
 	if (Keyboard::IsKeyPressed(GLFW_KEY_W))
 	{
-		moveDirection += glm::vec2(glm::cos(m_Angle), glm::sin(m_Angle));
+		velocity += glm::vec2(glm::cos(m_Angle), glm::sin(m_Angle));
 	}
 	if (Keyboard::IsKeyPressed(GLFW_KEY_S))
 	{
-		moveDirection -= glm::vec2(glm::cos(m_Angle), glm::sin(m_Angle));
+		velocity -= glm::vec2(glm::cos(m_Angle), glm::sin(m_Angle));
 	}
 	if (Keyboard::IsKeyPressed(GLFW_KEY_A))
 	{
 		float alpha = m_Angle - PI / 2;
-		moveDirection += glm::vec2(glm::cos(alpha), glm::sin(alpha));
+		velocity += glm::vec2(glm::cos(alpha), glm::sin(alpha));
 	}
 	if (Keyboard::IsKeyPressed(GLFW_KEY_D))
 	{
 		float alpha = m_Angle + PI / 2;
-		moveDirection += glm::vec2(glm::cos(alpha), glm::sin(alpha));
+		velocity += glm::vec2(glm::cos(alpha), glm::sin(alpha));
 	}
 
 	m_Angle += (float)(Mouse::GetX() - m_LastMouseX) * 0.0025f;
@@ -46,9 +46,44 @@ void Player::Update(const double& deltaTime)
 	m_YOffset += m_LastMouseY - Mouse::GetY();
 	m_LastMouseY = Mouse::GetY();
 
-	if (moveDirection != glm::vec2(0))
-		moveDirection = glm::normalize(moveDirection);
+	if (velocity != glm::vec2(0))
+		velocity = glm::normalize(velocity) * float(speed);
+	
+	glm::vec2 potentionalPosition = m_Position + velocity;
 
-	m_Position += moveDirection * (float)speed;
+	glm::ivec2 currentCell = glm::floor(m_Position);
+	glm::ivec2 targetCell = potentionalPosition;
+	glm::ivec2 areaTL = glm::max(glm::min(currentCell, targetCell) - glm::ivec2(1, 1), glm::ivec2(0, 0));
+	glm::ivec2 areaBR = glm::min(glm::max(currentCell, targetCell) + glm::ivec2(1, 1), glm::ivec2(map.GetWidth(), map.GetHeight()));
+
+	float radius = 0.15f;
+#ifdef DEBUG
+	radius = 0.3f;
+#endif
+
+	glm::ivec2 cell;
+	for (cell.y = areaTL.y; cell.y <= areaBR.y; cell.y++)
+	{
+		for (cell.x = areaTL.x; cell.x <= areaBR.x; cell.x++)
+		{
+			if (map[cell.y * map.GetWidth() + cell.x] != ' ')
+			{
+				glm::vec2 nearestPoint;
+				nearestPoint.x = glm::max(float(cell.x), glm::min(potentionalPosition.x, float(cell.x + 1)));
+				nearestPoint.y = glm::max(float(cell.y), glm::min(potentionalPosition.y, float(cell.y + 1)));
+				
+				glm::vec2 rayToNearest = nearestPoint - potentionalPosition;
+				float overlap = radius - glm::length(rayToNearest);
+
+				if (std::isnan(overlap))	overlap = 0;
+
+				if (overlap > 0)
+				{
+					potentionalPosition = potentionalPosition - glm::normalize(rayToNearest) * overlap;
+				}
+			}
+		}
+	}
+
+	m_Position = potentionalPosition;
 }
-
