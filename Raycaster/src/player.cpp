@@ -1,16 +1,19 @@
 #include "player.h"
 
 #include "input/input.h"
+#include "utils/filemanager.h"
 
 static constexpr float PI = 3.14159265359f;
 
-Player::Player(float x, float y, float angle)
+Player::Player(float x, float y, float angle, const char* filename)
 	: m_Position(x, y), m_Angle(angle), m_Speed(2.5f), m_LastMouseX(0), m_LastMouseY(0), m_YOffset(0)
 {
+	m_Texture = FileManager::LoadTexture(filename);
 }
 
 Player::~Player()
 {
+	delete m_Texture;
 }
 
 void Player::Update(const double& deltaTime, const Map& map)

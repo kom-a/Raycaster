@@ -53,6 +53,11 @@ const Texture* FileManager::LoadTexture(const char* filename)
 	Texture* texture = new Texture;
 	int comp;
 	texture->pixels = stbi_load(filename, (int*)&texture->width, (int*)&texture->height, &comp, 3);
+	if (!texture->pixels)
+	{
+		std::cout << "Failed to load texture \'" << filename << "\'" << std::endl;
+		return 0;
+	}
 	texture->pixels = ConvertToColumnMajor(texture->pixels, texture->width, texture->height, 3);
 
 	return texture;

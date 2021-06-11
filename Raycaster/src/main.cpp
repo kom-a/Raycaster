@@ -21,7 +21,7 @@ int main()
 	Window window(width, height, "Raycaster");
 	Renderer renderer(width, height);
 
-	Player player(6.01f, 3.1f, 0.0f);
+	Player player(6.01f, 3.1f, 0.0f, "res/gun.png");
 	Camera camera((float)M_PI / 3.0f);
 
 	SpriteSheet sheet("res/spritesheet.bmp", 64, 64);
@@ -85,6 +85,7 @@ int main()
 
 		renderer.DrawSprite(sprite, player);
 		renderer.DrawSprite(sprite2, player);
+		renderer.DrawPlayer(player, 0 , 220);
 		
 		int error = glGetError();
 		if (error)

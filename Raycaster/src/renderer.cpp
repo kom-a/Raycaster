@@ -159,6 +159,25 @@ void Renderer::DrawSprite(const Sprite& sprite, const Player& player)
 	}
 }
 
+void Renderer::DrawPlayer(const Player& player, int x_offset, int y_offset)
+{
+	const Texture* texture = player.GetTexture();
+
+	for (size_t x = 0; x < texture->width; x++)
+	{
+		const uint8_t* column = texture->GetColumn(x);
+		for(size_t y = 0; y < texture->height; y++)
+		{
+			int r = column[y * 3 + 0];
+			int g = column[y * 3 + 1];
+			int b = column[y * 3 + 2];
+
+			if (r == 246 && g == 0 && b == 255) continue; // MAGENTA
+			Draw(m_Width / 2 - texture->width / 2 + x + x_offset, m_Height - texture->height + y + y_offset, glm::ivec3(r, g, b));
+		}
+	}
+}
+
 void Renderer::Flush()
 {
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_Width, m_Height, 0, GL_RGB, GL_UNSIGNED_BYTE, m_Buffer);
