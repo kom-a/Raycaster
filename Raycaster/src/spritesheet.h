@@ -17,6 +17,7 @@ struct Texture
 class SpriteSheet
 {
 public:
+	SpriteSheet() = default;
 	SpriteSheet(const char* filename, int width, int height);
 	~SpriteSheet();
 
@@ -25,7 +26,7 @@ public:
 	inline int GetWidth() const { return m_Width; }
 	inline int GetHeight() const { return m_Height; }
 
-	Texture operator[](size_t index);
+	Texture operator[](size_t index) const;
 public:
 	int m_CountX, m_CountY;
 	int m_Width, m_Height;

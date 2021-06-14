@@ -23,6 +23,11 @@ Sprite::Sprite(const char* filename, int x, int y)
 	STBI_FREE(rowMajorPixels);
 }
 
+Sprite::~Sprite()
+{
+	delete[] m_Pixels;
+}
+
 const uint8_t* Sprite::operator[](size_t index) const
 {
 	return m_Pixels + m_Size.y * index * 3;

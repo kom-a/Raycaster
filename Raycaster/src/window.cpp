@@ -29,7 +29,7 @@ void Window::Init()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	m_GLFWwindow = glfwCreateWindow(m_Width, m_Height, m_Title, glfwGetPrimaryMonitor(), nullptr);
+	m_GLFWwindow = glfwCreateWindow(m_Width, m_Height, m_Title, nullptr, nullptr);
 	glfwMakeContextCurrent(m_GLFWwindow);
 
 	glfwSetFramebufferSizeCallback(m_GLFWwindow, window_resize_callback);

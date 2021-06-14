@@ -9,7 +9,7 @@
 class Player
 {
 public:
-	Player(float x, float y, float angle, const char* filename);
+	Player(float x, float y, float angle, const char* filename, int textureWidth, int textureHeight);
 	~Player();
 
 	void Update(const double& deltaTime, const Map& map);
@@ -17,7 +17,7 @@ public:
 	inline const glm::vec2& GetPosition() const { return m_Position; }
 	inline const float& GetAngle() const { return m_Angle; }
 	inline int GetYOffset() const { return m_YOffset; }
-	inline const Texture* GetTexture() const { return m_Texture; }
+	inline Texture GetTexture() const { return m_SpriteSheet->operator[](m_CurrentAnim); }
 
 private:
 	glm::vec2 m_Position;
@@ -27,5 +27,8 @@ private:
 	double m_LastMouseX, m_LastMouseY;
 	int m_YOffset;
 
-	const Texture* m_Texture;
+	bool m_ReadyToShoot;
+	int m_CurrentAnim;
+	double m_AnimationTime;
+	const SpriteSheet* m_SpriteSheet;
 };

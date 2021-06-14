@@ -5,6 +5,7 @@
 #include "sprite.h"
 #include "player.h"
 #include "spritesheet.h"
+#include "enemies/enemy.h"
 
 class Renderer
 {
@@ -18,6 +19,7 @@ public:
 	void DrawSky(const Texture& texture, const Player& player);
 	void DrawSprite(const Sprite& sprite, const Player& player);
 	void DrawPlayer(const Player& player, int x_offset, int y_offset);
+	void DrawEnemy(const Enemy& enemy, const Player& player);
 	void Flush();
 
 private:

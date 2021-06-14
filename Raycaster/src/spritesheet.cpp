@@ -31,10 +31,10 @@ SpriteSheet::SpriteSheet(const char* filename, int width, int height)
 
 SpriteSheet::~SpriteSheet()
 {
-	delete[] m_Pixels;
+	// delete[] m_Pixels;
 }
 
-Texture SpriteSheet::operator[](size_t index)
+Texture SpriteSheet::operator[](size_t index) const
 {
 	Texture texture;
 	texture.width = m_TextureWidth;

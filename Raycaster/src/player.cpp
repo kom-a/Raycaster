@@ -5,15 +5,15 @@
 
 static constexpr float PI = 3.14159265359f;
 
-Player::Player(float x, float y, float angle, const char* filename)
-	: m_Position(x, y), m_Angle(angle), m_Speed(2.5f), m_LastMouseX(0), m_LastMouseY(0), m_YOffset(0)
+Player::Player(float x, float y, float angle, const char* filename, int textureWidth, int textureHeight)
+	: m_Position(x, y), m_Angle(angle), m_Speed(2.5f), m_LastMouseX(0), m_LastMouseY(0), m_YOffset(0), m_CurrentAnim(0), m_AnimationTime(0), m_ReadyToShoot(true)
 {
-	m_Texture = FileManager::LoadTexture(filename);
+	m_SpriteSheet = new SpriteSheet(filename, textureWidth, textureHeight);
 }
 
 Player::~Player()
 {
-	delete m_Texture;
+	delete m_SpriteSheet;
 }
 
 void Player::Update(const double& deltaTime, const Map& map)
@@ -21,6 +21,27 @@ void Player::Update(const double& deltaTime, const Map& map)
 	double speed = m_Speed * deltaTime;
 	glm::vec2 velocity(0);
 
+	m_AnimationTime += deltaTime;
+
+	if (m_ReadyToShoot && Mouse::IsButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
+	{
+		m_ReadyToShoot = false;
+	}
+
+	if (!m_ReadyToShoot)
+	{
+		if (m_AnimationTime >= 0.05)
+		{
+			m_CurrentAnim++;
+			if (m_CurrentAnim >= 6)
+			{
+				m_ReadyToShoot = true;
+				m_CurrentAnim = 0;
+			}
+			m_AnimationTime = 0;
+		}
+	}
+	
 	if (Keyboard::IsKeyPressed(GLFW_KEY_LEFT_SHIFT))
 	{
 		speed *= 1.5;
@@ -59,7 +80,7 @@ void Player::Update(const double& deltaTime, const Map& map)
 	glm::ivec2 areaTL = glm::max(glm::min(currentCell, targetCell) - glm::ivec2(1, 1), glm::ivec2(0, 0));
 	glm::ivec2 areaBR = glm::min(glm::max(currentCell, targetCell) + glm::ivec2(1, 1), glm::ivec2(map.GetWidth(), map.GetHeight()));
 
-	float radius = 0.1f;
+	float radius = 0.3f;
 
 	glm::ivec2 cell;
 	for (cell.y = areaTL.y; cell.y <= areaBR.y; cell.y++)

@@ -44,7 +44,7 @@ glm::vec2 Camera::CastRay(const glm::vec2& origin, const glm::vec2& direction, c
 
 	float maxDistance = 60.0f;
 	float distance = 0.0f;
-	while (distance < maxDistance)
+	while (true)
 	{
 		if (rayLength1D.x < rayLength1D.y)
 		{

@@ -7,6 +7,7 @@ class Sprite
 {
 public:
 	Sprite(const char* filename, int x, int y);
+	~Sprite();
 
 	const uint8_t* operator[](size_t index) const;
 
