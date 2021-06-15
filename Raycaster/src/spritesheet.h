@@ -18,13 +18,14 @@ class SpriteSheet
 {
 public:
 	SpriteSheet() = default;
-	SpriteSheet(const char* filename, int width, int height);
+	SpriteSheet(const char* filename, int width, int height, bool looped);
 	~SpriteSheet();
 
 	inline int GetCountX() const { return m_CountX; }
 	inline int GetCountY() const { return m_CountY; }
 	inline int GetWidth() const { return m_Width; }
 	inline int GetHeight() const { return m_Height; }
+	inline bool IsLooped() const { return m_Looped; }
 
 	Texture operator[](size_t index) const;
 public:
@@ -32,4 +33,5 @@ public:
 	int m_Width, m_Height;
 	int m_TextureWidth, m_TextureHeight; // Width and height of single texture in sprite sheet
 	uint8_t* m_Pixels;
+	bool m_Looped;
 };

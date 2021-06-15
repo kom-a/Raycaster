@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <cstdlib>
+#include <vector>
 #include <ctime>
 
 #include "window.h"
@@ -13,8 +14,10 @@
 #include "spritesheet.h"
 #include "sprite.h"
 #include "utils/filemanager.h"
+#include "utils/resourcemanager.h"
 
 #include "enemies/goblin.h"
+#include "enemies/flyingeye.h"
 
 #include <glad/glad.h>
 
@@ -25,23 +28,32 @@ int main()
 	Window window(width, height, "Raycaster");
 	Renderer renderer(width, height);
 
-	Player player(6.01f, 3.1f, 0.0f, "res/2.png", 250, 250);
+	Player player(6.0f, 3.0f, 0.0f, "res/2.png", 250, 250);
 	Camera camera((float)M_PI / 3.0f);
 
-	SpriteSheet sheet("res/spritesheet.bmp", 64, 64);
-	// const Texture* sky = FileManager::LoadTexture("res/Nebula Blue.png");
+	SpriteSheet sheet("res/spritesheet.bmp", 64, 64, false);
+	const Texture* sky = FileManager::LoadTexture("res/Nebula Blue.png");
 	Map map("res/maps/textureTestMap.rcm");
-	
-	Sprite sprite("res/tronchungo3.png", 3, 4);
-	Sprite sprite2("res/Warrior_Idle_1.png", 5, 2);
-	Sprite sprite3("res/sorcerer attack_Animation 1_0.png", 6, 6);
+
+	ResourceManager::LoadSpriteSheet("res/Goblin/Idle.png", 33, 36, true, "GoblinIdleSheet");
+	ResourceManager::LoadSpriteSheet("res/Goblin/Attack.png", 90, 48, false, "GoblinAttackSheet");
+	ResourceManager::LoadSpriteSheet("res/Goblin/TakeHit.png", 42, 37, false, "GoblinTakeHitSheet");
+	ResourceManager::LoadSpriteSheet("res/Goblin/Death.png", 58, 40, false, "GoblinDeathSheet");
+
+	//Sprite sprite("res/tronchungo3.png", 3, 4);
+	//Sprite sprite2("res/Warrior_Idle_1.png", 5, 2);
+	//Sprite sprite3("res/sorcerer attack_Animation 1_0.png", 6, 6);
 
 	srand(time(NULL));
-	Goblin goblins[5];
-	for (Goblin& g : goblins)
+	std::vector<Enemy> enemies;
+	for (int i = 0; i < 0; i++)
 	{
-		g = Goblin(glm::vec2((float)rand() / RAND_MAX * 10, (float)rand() / RAND_MAX * 10));
+		if(i < 6)
+			enemies.push_back(Goblin(glm::vec2(3.0f, i * 2)));
+		else
+			enemies.push_back(FlyingEye(glm::vec2(3.0f, i * 2)));
 	}
+	enemies.push_back(FlyingEye(glm::vec2(3, 3)));
 
 	double lastTime = glfwGetTime();
 	double deltaTime = 0;
@@ -62,15 +74,15 @@ int main()
 			unprocessedTime = 0;
 		}
 
-		player.Update(deltaTime, map);
-		for (Goblin& g : goblins)
+		player.Update(deltaTime, map, enemies);
+		for (Enemy& e : enemies)
 		{
-			g.Update(deltaTime);
+			e.Update(deltaTime);
 		}
 
 
 		renderer.Clear();
-		// renderer.DrawSky(*sky, player);
+		renderer.DrawSky(*sky, player);
 #if 1
 		for (uint32_t x = 0; x < width; x++)
 		{
@@ -100,12 +112,12 @@ int main()
 		}
 #endif
 
-		renderer.DrawSprite(sprite, player);
+		/*renderer.DrawSprite(sprite, player);
 		renderer.DrawSprite(sprite2, player);
-		renderer.DrawSprite(sprite3, player);
-		for (Goblin& g : goblins)
+		renderer.DrawSprite(sprite3, player);*/
+		for (Enemy& e : enemies)
 		{
-			renderer.DrawEnemy(g, player);
+			renderer.DrawEnemy(e, player);
 		}
 
 

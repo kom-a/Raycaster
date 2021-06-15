@@ -6,6 +6,8 @@
 class Window
 {
 public:
+	static Window* INSTANCE;
+public:
 	Window(int width, int height, const char* title);
 	~Window();
 
@@ -15,6 +17,8 @@ public:
 
 	inline int GetWidth() const { return m_Width; }
 	inline int GetHeight() const { return m_Height; }
+
+	inline static Window* GetWindow() { return INSTANCE; }
 	
 private:
 	void Init();

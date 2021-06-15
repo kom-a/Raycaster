@@ -5,6 +5,7 @@
 #include "spritesheet.h"
 #include "camera.h"
 #include "map.h"
+#include "enemies/enemy.h"
 
 class Player
 {
@@ -12,7 +13,7 @@ public:
 	Player(float x, float y, float angle, const char* filename, int textureWidth, int textureHeight);
 	~Player();
 
-	void Update(const double& deltaTime, const Map& map);
+	void Update(const double& deltaTime, const Map& map, const std::vector<Enemy>& enemies);
 
 	inline const glm::vec2& GetPosition() const { return m_Position; }
 	inline const float& GetAngle() const { return m_Angle; }

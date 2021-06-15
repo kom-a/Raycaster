@@ -214,6 +214,7 @@ void Renderer::DrawEnemy(const Enemy& enemy, const Player& player)
 	size_t sprite_screen_size = std::min(1000, static_cast<int>(m_Height / sprite_distance));
 	size_t sprite_screen_size_scaled = sprite_screen_size * enemy.GetScaleFactor();
 	int y_offset = sprite_screen_size / 2 - sprite_screen_size_scaled / 2;
+	sprite_screen_size = sprite_screen_size_scaled;
 
 	int top_y = m_Height / 2 - sprite_screen_size / 2;
 
@@ -232,7 +233,7 @@ void Renderer::DrawEnemy(const Enemy& enemy, const Player& player)
 			int g = column[index + 1];
 			int b = column[index + 2];
 
-			if (r == 255 && g == 0 && b == 255) continue;
+			if (r == 255 && g == 0 && b == 255) ;
 			Draw(x_coord_on_screen, top_y + y + y_offset, glm::ivec3(r, g, b));
 		}
 	}

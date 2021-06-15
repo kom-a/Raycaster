@@ -11,11 +11,12 @@ public:
 	}
 
 	Goblin(const glm::vec2& position)
-		: Enemy(position, "res/goblin.png", 33, 36)
+		 : Enemy(position, "GoblinIdleSheet")
+		 // : Enemy(position, "res/Goblin/Attack.png", 90, 48)
 	{
 		m_CurrentFrame = 0;
 		m_Damage = 10;
 		m_Health = 100;
-		m_ScaleFactor = 0.45f;
+		m_ScaleFactor = 0.75f;
 	}
 };

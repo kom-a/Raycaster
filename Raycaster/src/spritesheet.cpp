@@ -6,7 +6,7 @@
 
 #include "spritesheet.h"
 
-SpriteSheet::SpriteSheet(const char* filename, int width, int height)
+SpriteSheet::SpriteSheet(const char* filename, int width, int height, bool looped)
 	: m_TextureWidth(width), m_TextureHeight(height)
 {
 	int comp;

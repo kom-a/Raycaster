@@ -5,10 +5,13 @@
 #include "input/mouse.h"
 #include "input/keyboard.h"
 
+Window* Window::INSTANCE;
+
 Window::Window(int width, int height, const char* title)
 	: m_Width(width), m_Height(height), m_Title(title)
 {
-	Init();
+	if(INSTANCE == nullptr)
+		Init();
 }
 
 Window::~Window()
