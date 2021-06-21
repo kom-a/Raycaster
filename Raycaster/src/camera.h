@@ -10,7 +10,7 @@ public:
 	~Camera();
 
 	// direction must be normalized
-	glm::vec2 CastRay(const glm::vec2& origin, const glm::vec2& direction, const Map& map, char* tex);
+	glm::vec2 CastRay(const glm::vec2& origin, const glm::vec2& direction, const Map& map, char* tex) const; 
 
 	inline const float& GetFOV() const { return m_FOV; }
 private:

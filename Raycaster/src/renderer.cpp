@@ -55,10 +55,15 @@ Renderer::~Renderer()
 	delete m_Shader;
 }
 
-void Renderer::Clear()
+void Renderer::Clear(const int& horizontOffset)
 {
-	memset(m_Buffer, 200, m_BufferSize / 2);
-	memset(m_Buffer + m_BufferSize / 2, 100, m_BufferSize / 2);
+	int skyHeight = m_Height / 2 + horizontOffset;
+	if (skyHeight < 0) skyHeight = 0;
+	if (skyHeight > m_Height - 1) skyHeight = m_Height - 1;
+	int groundHeight = m_Height - skyHeight;
+
+	memset(m_Buffer, 200, m_Width * skyHeight * 3);
+	memset(m_Buffer + m_Width * skyHeight * 3, 100, m_Width * groundHeight * 3);
 	for (size_t i = 0; i < m_Width; i++)
 		m_DepthBuffer[i] = 9999999.0f;
 
@@ -81,7 +86,7 @@ void Renderer::DrawWall(int x, float distance, const Texture& texture, int col, 
 	const float fov = (float)M_PI / 3.0f;
 	float angle = (player.GetAngle() - fov / 2.0f) + (float)x / m_Width * fov;
 	uint32_t wallHeight = (uint32_t)(m_Height / (distance * glm::cos(angle - player.GetAngle())));
-	int top = m_Height / 2 - wallHeight / 2;
+	int top = m_Height / 2 - wallHeight / 2 + player.GetYOffset();
 	const uint8_t* column = texture.GetColumn(col);
 
 
@@ -198,6 +203,17 @@ void Renderer::DrawPlayer(const Player& player, int x_offset, int y_offset)
 			Draw(m_Width / 2 - texture.width / 2 + x + x_offset, m_Height - texture.height + y + y_offset, glm::ivec3(r, g, b));
 		}
 	}
+
+
+	// Draw cursor
+	for (int y = 0; y < 9; y++)
+	{
+		Draw(m_Width / 2, m_Height / 2 - 4 + y, glm::ivec3(0));
+	}
+	for (int x = 0; x < 9; x++)
+	{
+		Draw(m_Width / 2 - 4 + x, m_Height / 2, glm::ivec3(0));
+	}
 }
 
 void Renderer::DrawEnemy(const Enemy& enemy, const Player& player)
@@ -216,7 +232,7 @@ void Renderer::DrawEnemy(const Enemy& enemy, const Player& player)
 	int y_offset = sprite_screen_size / 2 - sprite_screen_size_scaled / 2;
 	sprite_screen_size = sprite_screen_size_scaled;
 
-	int top_y = m_Height / 2 - sprite_screen_size / 2;
+	int top_y = m_Height / 2 - sprite_screen_size / 2 + player.GetYOffset();
 
 	for (size_t x = 0; x < sprite_screen_size; x++)
 	{
@@ -224,7 +240,7 @@ void Renderer::DrawEnemy(const Enemy& enemy, const Player& player)
 		if (x_coord_on_screen >= (int)m_Width) break;
 		if (x_coord_on_screen < 0) continue;
 		if (sprite_distance > m_DepthBuffer[x_coord_on_screen]) continue;
-		const Texture texture = enemy.GetCurrentTexture();
+		Texture texture = enemy.GetCurrentTexture();
 		const uint8_t* column = texture.GetColumn(static_cast<int>((float)x / sprite_screen_size * texture.width));
 		for (size_t y = 0; y < sprite_screen_size; y++)
 		{
@@ -233,7 +249,7 @@ void Renderer::DrawEnemy(const Enemy& enemy, const Player& player)
 			int g = column[index + 1];
 			int b = column[index + 2];
 
-			if (r == 255 && g == 0 && b == 255) ;
+			if (r == 255 && g == 0 && b == 255) continue;
 			Draw(x_coord_on_screen, top_y + y + y_offset, glm::ivec3(r, g, b));
 		}
 	}

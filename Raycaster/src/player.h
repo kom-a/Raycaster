@@ -19,11 +19,14 @@ public:
 	inline const float& GetAngle() const { return m_Angle; }
 	inline int GetYOffset() const { return m_YOffset; }
 	inline Texture GetTexture() const { return m_SpriteSheet->operator[](m_CurrentAnim); }
+	inline const Camera* GetCamera() const { return m_Camera; }
 
 private:
 	glm::vec2 m_Position;
 	float m_Angle;
 	float m_Speed;
+
+	Camera* m_Camera;
 
 	double m_LastMouseX, m_LastMouseY;
 	int m_YOffset;

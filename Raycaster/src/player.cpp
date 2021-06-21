@@ -9,13 +9,23 @@
 static constexpr float PI = 3.14159265359f;
 
 Player::Player(float x, float y, float angle, const char* filename, int textureWidth, int textureHeight)
-	: m_Position(x, y), m_Angle(angle), m_Speed(2.5f), m_LastMouseX(0), m_LastMouseY(0), m_YOffset(0), m_CurrentAnim(0), m_AnimationTime(0), m_ReadyToShoot(true)
+	:	m_Position(x, y),
+		m_Angle(angle),
+		m_Speed(2.5f), 
+		m_LastMouseX(0), 
+		m_LastMouseY(0),
+		m_YOffset(0),
+		m_CurrentAnim(0), 
+		m_AnimationTime(0),
+		m_ReadyToShoot(true)
 {
+	m_Camera = new Camera(PI / 3);
 	m_SpriteSheet = new SpriteSheet(filename, textureWidth, textureHeight, false);
 }
 
 Player::~Player()
 {
+	delete m_Camera;
 	delete m_SpriteSheet;
 }
 
@@ -33,8 +43,14 @@ void Player::Update(const double& deltaTime, const Map& map, const std::vector<E
 		for (const Enemy& e : enemies)
 		{
 			glm::vec2 enemyDir = e.GetPosition() - this->GetPosition();
-			float sprite_angle = glm::atan(enemyDir.y, enemyDir.x);
 			float sprite_distance = glm::length(enemyDir);
+
+			char hittedTexture;
+			glm::vec2 intersectionPoint = m_Camera->CastRay(m_Position, glm::vec2(glm::cos(m_Angle), glm::sin(m_Angle)), map, &hittedTexture);
+			float rayToWallLength = glm::length(intersectionPoint - m_Position);
+			if (rayToWallLength < sprite_distance) continue;
+
+			float sprite_angle = glm::atan(enemyDir.y, enemyDir.x);
 			const float fov = PI / 3.0;
 
 			while (sprite_angle > 2 * PI) sprite_angle -= 2 * PI;
@@ -44,6 +60,7 @@ void Player::Update(const double& deltaTime, const Map& map, const std::vector<E
 			while (player_angle > 2 * PI) player_angle -= 2 * PI;
 			while (player_angle < 0) player_angle += 2 * PI;
 			
+			// TODO: Rewrite this
 			int windowWidth = 640;
 			int windowHeight = windowWidth * 9 / 16;
 
@@ -51,7 +68,7 @@ void Player::Update(const double& deltaTime, const Map& map, const std::vector<E
 			size_t sprite_screen_size = std::min(1000, static_cast<int>(windowHeight / sprite_distance));
 			size_t sprite_screen_size_scaled = sprite_screen_size * e.GetScaleFactor();
 			sprite_screen_size = sprite_screen_size_scaled;
-
+			
 			float angleMin = (this->GetAngle() - fov / 2.0f) + (float)(x_center_of_sprite_on_screen - sprite_screen_size_scaled / 2) / windowWidth * fov;
 			float angleMax = (this->GetAngle() - fov / 2.0f) + (float)(x_center_of_sprite_on_screen + sprite_screen_size_scaled / 2) / windowWidth * fov;
 
@@ -61,16 +78,12 @@ void Player::Update(const double& deltaTime, const Map& map, const std::vector<E
 			while (angleMax - this->GetAngle() > PI) angleMax -= 2 * PI;
 			while (angleMax - this->GetAngle() < -PI) angleMax += 2 * PI;
 
-			/*std::cout << std::endl;
-			std::cout << "Angle min: " << angleMin << std::endl;
-			std::cout << "Angle max: " << angleMax << std::endl;
-			std::cout << "Player angle: " << this->m_Angle << std::endl << std::endl;*/
-
 			if (m_Angle > angleMin && m_Angle < angleMax)
 			{
+				e.GetAnimation()->Play("TakeHit");
+
 				std::cout << "Hitted" << std::endl;
 			}
-
 		}
 	}
 
@@ -120,7 +133,6 @@ void Player::Update(const double& deltaTime, const Map& map, const std::vector<E
 		velocity = glm::normalize(velocity) * float(speed);
 	
 	glm::vec2 potentionalPosition = m_Position + velocity;
-
 
 	// Collision detection
 	glm::ivec2 currentCell = glm::floor(m_Position);

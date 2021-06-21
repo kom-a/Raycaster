@@ -29,7 +29,7 @@ int main()
 	Renderer renderer(width, height);
 
 	Player player(6.0f, 3.0f, 0.0f, "res/2.png", 250, 250);
-	Camera camera((float)M_PI / 3.0f);
+	const Camera* camera = player.GetCamera();;
 
 	SpriteSheet sheet("res/spritesheet.bmp", 64, 64, false);
 	const Texture* sky = FileManager::LoadTexture("res/Nebula Blue.png");
@@ -40,20 +40,15 @@ int main()
 	ResourceManager::LoadSpriteSheet("res/Goblin/TakeHit.png", 42, 37, false, "GoblinTakeHitSheet");
 	ResourceManager::LoadSpriteSheet("res/Goblin/Death.png", 58, 40, false, "GoblinDeathSheet");
 
-	//Sprite sprite("res/tronchungo3.png", 3, 4);
-	//Sprite sprite2("res/Warrior_Idle_1.png", 5, 2);
-	//Sprite sprite3("res/sorcerer attack_Animation 1_0.png", 6, 6);
-
 	srand(time(NULL));
 	std::vector<Enemy> enemies;
-	for (int i = 0; i < 0; i++)
+	for (int i = 0; i < 3; i++)
 	{
-		if(i < 6)
-			enemies.push_back(Goblin(glm::vec2(3.0f, i * 2)));
+		if (true)
+			enemies.push_back(Goblin(glm::vec2(3.0f, i * 2 + 2)));
 		else
 			enemies.push_back(FlyingEye(glm::vec2(3.0f, i * 2)));
 	}
-	enemies.push_back(FlyingEye(glm::vec2(3, 3)));
 
 	double lastTime = glfwGetTime();
 	double deltaTime = 0;
@@ -79,17 +74,16 @@ int main()
 		{
 			e.Update(deltaTime);
 		}
-
-
-		renderer.Clear();
-		renderer.DrawSky(*sky, player);
+		
+		renderer.Clear(player.GetYOffset());
+		// renderer.DrawSky(*sky, player);
 #if 1
 		for (uint32_t x = 0; x < width; x++)
 		{
-			float angle = (player.GetAngle() - camera.GetFOV() / 2.0f) + (float)x / width * camera.GetFOV();
+			float angle = (player.GetAngle() - camera->GetFOV() / 2.0f) + (float)x / width * camera->GetFOV();
 
 			char tex;
-			glm::vec2 hit = camera.CastRay(player.GetPosition(), glm::vec2(glm::cos(angle), glm::sin(angle)), map, &tex);
+			glm::vec2 hit = camera->CastRay(player.GetPosition(), glm::vec2(glm::cos(angle), glm::sin(angle)), map, &tex);
 
 			float hitX = hit.x - int(hit.x + 0.5f);
 			float hitY = hit.y - int(hit.y + 0.5f);
@@ -122,8 +116,8 @@ int main()
 
 
 
-		renderer.DrawPlayer(player, -glm::sin(glfwGetTime() * 3) * 4 , 100 - glm::sin(glfwGetTime()) * 2);
-		
+		renderer.DrawPlayer(player, -glm::sin(glfwGetTime() * 3) * 4, 100 - glm::sin(glfwGetTime()) * 2);
+
 		int error = glGetError();
 		if (error)
 			std::cout << "OpenGL ERROR: " << error << std::endl;
@@ -133,7 +127,7 @@ int main()
 		window.Update();
 		fps++;
 	}
+	delete sky;
 
-	// delete sky;
 	return 0;
 }

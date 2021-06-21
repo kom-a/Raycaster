@@ -7,7 +7,7 @@
 #include "spritesheet.h"
 
 SpriteSheet::SpriteSheet(const char* filename, int width, int height, bool looped)
-	: m_TextureWidth(width), m_TextureHeight(height)
+	: m_TextureWidth(width), m_TextureHeight(height), m_Looped(looped)
 {
 	int comp;
 	uint8_t* rowMajorPixels = stbi_load(filename, &m_Width, &m_Height, &comp, 3);

@@ -13,7 +13,7 @@ public:
 	Renderer(uint32_t width, uint32_t height);
 	~Renderer();
 
-	void Clear();
+	void Clear(const int& horizontOffset);
 	void Draw(int x, int y, const glm::ivec3& color);
 	void DrawWall(int x, float distance, const Texture& texture, int column, const Player& player);
 	void DrawSky(const Texture& texture, const Player& player);

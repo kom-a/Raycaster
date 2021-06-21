@@ -11,7 +11,7 @@ Camera::~Camera()
 
 }
 
-glm::vec2 Camera::CastRay(const glm::vec2& origin, const glm::vec2& direction, const Map& map, char* tex)
+glm::vec2 Camera::CastRay(const glm::vec2& origin, const glm::vec2& direction, const Map& map, char* tex) const 
 {
 	glm::vec2 rayUnitStepSize(glm::sqrt(1 + (direction.y / direction.x) * (direction.y / direction.x)), glm::sqrt(1 + (direction.x / direction.y) * (direction.x / direction.y)));
 

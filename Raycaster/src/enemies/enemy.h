@@ -3,61 +3,40 @@
 #include <glm/glm.hpp>
 #include "../spritesheet.h"
 #include "utils/resourcemanager.h"
-
+#include "animation.h"
 #include "../input/input.h"
 
 class Enemy
 {
 protected:
-	Enemy()
-	{
-
-	}
-
 	Enemy(const glm::vec2& position, const char* recourceName)
-		: m_Position(position), m_CurrentFrame(0), m_Health(0), m_Damage(0), m_AnimationTimer(0), m_ScaleFactor(1)
+		: m_Position(position), m_Health(0), m_Damage(0), m_ScaleFactor(1)
 	{
 		m_SpriteSheet = ResourceManager::GetSpriteSheet(recourceName);
+		m_Animation = new Animation();
+		m_Animation->AddLayer(m_SpriteSheet, 0000000000, "Idle");
 	}
 
 public:
 	virtual ~Enemy()
 	{
-		// delete m_SpriteSheet;
+		 //delete m_SpriteSheet;
 	}
 
 public:
 	inline const glm::vec2& GetPosition() const { return m_Position; }
-	inline const Texture GetCurrentTexture() const { return m_SpriteSheet->operator[](m_CurrentFrame); }
+	inline Texture GetCurrentTexture() const { return m_Animation->GetCurrentTexture(); }
 	inline const float& GetScaleFactor() const { return m_ScaleFactor; }
+	inline Animation* GetAnimation() const { return m_Animation; }
+
 
 	virtual void Update(double deltaTime)
 	{
-		if (Keyboard::IsKeyPressed('R'))
-			m_SpriteSheet = ResourceManager::GetSpriteSheet("GoblinTakeHitSheet");
-		else
-			m_SpriteSheet = ResourceManager::GetSpriteSheet("GoblinIdleSheet");
-
-		m_AnimationTimer += deltaTime;
-		if (m_AnimationTimer >= 0.1)
-		{
-			m_CurrentFrame++;
-
-			if (m_CurrentFrame >= m_SpriteSheet->GetCountX() || m_CurrentFrame <= 0)
-			{
-				m_CurrentFrame = 0;
-			}
-			m_AnimationTimer = 0;
-		}
-
-		// m_Position += 0.1f * deltaTime;
+		m_Animation->Update(deltaTime);
 	};
 
-
-
 protected:
-	double m_AnimationTimer;
-	int m_CurrentFrame;
+	Animation* m_Animation;
 	const SpriteSheet* m_SpriteSheet;
 	float m_ScaleFactor;
 
@@ -65,5 +44,4 @@ protected:
 
 	int m_Health;
 	int m_Damage;
-
 };
