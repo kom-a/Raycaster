@@ -15,7 +15,7 @@ public:
 		 : Enemy(position)
 	{
 		m_Damage = 10;
-		m_Health = 30;
+		m_Health = 20;
 		m_ScaleFactor = 0.7f;
 
 		const SpriteSheet* idleSheet = ResourceManager::GetSpriteSheet("GoblinIdleSheet");
@@ -33,34 +33,39 @@ public:
 		m_Animation->Play("Idle");
 	}
 
-	void Update(double deltaTime, const Player& player) override
+	void Update(double deltaTime, const Player& player, const Map& map) override
 	{
-		Enemy::Update(deltaTime, player);
+		Enemy::Update(deltaTime, player, map);
 		if (m_State == EnemyState::Death) return;
+		const Camera* camera = player.GetCamera();
 
 		const float chaseDistance = 8.0f;
 		const float attackDistance = 0.6f;
 		
 		glm::vec2 moveDirection = player.GetPosition() - m_Position;
 		float length = glm::length(moveDirection);
+		moveDirection = glm::normalize(moveDirection);
 
+		char tex;
+		glm::vec2 intersection = camera->CastRay(player.GetPosition(), -moveDirection, map, &tex);
+		float wallDistance = glm::length(intersection - player.GetPosition());
+		bool isPlayerVisible = length < wallDistance ? true : false;
 
-		if (length < chaseDistance && m_State == EnemyState::Idle)
-		{
-			m_Animation->Play("Run");
-			m_State = EnemyState::Run;
-		}
-		else if(length > chaseDistance && m_State == EnemyState::Run)
+		if (length > chaseDistance && m_State == EnemyState::Run || !isPlayerVisible && m_State == EnemyState::Run)
 		{
 			m_Animation->Play("Idle");
 			m_State = EnemyState::Idle;
+		}
+		else if (length < chaseDistance && m_State == EnemyState::Idle && isPlayerVisible)
+		{
+			m_Animation->Play("Run");
+			m_State = EnemyState::Run;
 		}
 		else if (m_State == EnemyState::Run)
 		{
 			if (length > attackDistance)
 			{
-				moveDirection /= length; // normalize
-				float speed = 1.0f * deltaTime;
+				float speed = 1.5f * deltaTime;
 				m_Position += moveDirection * speed;
 			}
 			else if(m_State != EnemyState::Attack)

@@ -92,7 +92,7 @@ void Player::Update(const double& deltaTime, const Map& map, const std::vector<E
 
 	if (!m_ReadyToShoot)
 	{
-		if (m_AnimationTime >= 0.06)
+		if (m_AnimationTime >= 0.05)
 		{
 			m_CurrentAnim++;
 			if (m_CurrentAnim >= 6)

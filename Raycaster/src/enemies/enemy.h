@@ -5,6 +5,7 @@
 #include "utils/resourcemanager.h"
 #include "../animation.h"
 #include "../input/input.h"
+#include "../map.h"
 
 #include <iostream>
 
@@ -44,7 +45,7 @@ public:
 
 	inline void SetScaleFactor(float scaleFactor) { m_ScaleFactor = scaleFactor; }
 
-	virtual void Update(double deltaTime, const Player& player)
+	virtual void Update(double deltaTime, const Player& player, const Map& map)
 	{
 		m_Animation->Update(deltaTime);
 	};

@@ -30,7 +30,7 @@ int main()
 	Renderer renderer(width, height);
 
 	Player player(7.1f, 3.0f, 3.1415f, "res/2.png", 250, 250);
-	const Camera* camera = player.GetCamera();;
+	const Camera* camera = player.GetCamera();
 
 	SpriteSheet sheet("res/spritesheet.bmp", 64, 64, false);
 	// const Texture* sky = FileManager::LoadTexture("res/Nebula Blue.png");
@@ -44,7 +44,7 @@ int main()
 
 	std::vector<Enemy*> enemies;
 	for (int i = 0; i < 1; i++)
-			enemies.push_back(new Goblin(glm::vec2(3.0 * i + 2, 3)));
+			enemies.push_back(new Goblin(glm::vec2(2.0 * i + 2, 3)));
 
 	double lastTime = glfwGetTime();
 	double deltaTime = 0;
@@ -70,7 +70,7 @@ int main()
 		player.Update(deltaTime, map, enemies);
 		for (Enemy* e : enemies)
 		{
-			e->Update(deltaTime, player);
+			e->Update(deltaTime, player, map);
 		}
 
 		std::sort(enemies.begin(), enemies.end(),
