@@ -9,15 +9,17 @@
 static constexpr float PI = 3.14159265359f;
 
 Player::Player(float x, float y, float angle, const char* filename, int textureWidth, int textureHeight)
-	:	m_Position(x, y),
-		m_Angle(angle),
-		m_Speed(2.5f), 
-		m_LastMouseX(0), 
-		m_LastMouseY(0),
-		m_YOffset(0),
-		m_CurrentAnim(0), 
-		m_AnimationTime(0),
-		m_ReadyToShoot(true)
+	: m_Position(x, y),
+	m_Angle(angle),
+	m_Speed(2.5f),
+	m_LastMouseX(0),
+	m_LastMouseY(0),
+	m_YOffset(0),
+	m_CurrentAnim(0),
+	m_AnimationTime(0),
+	m_ReadyToShoot(true),
+	m_Health(100),
+	m_Damage(10)
 {
 	m_Camera = new Camera(PI / 3);
 	m_SpriteSheet = new SpriteSheet(filename, textureWidth, textureHeight, false);
@@ -29,7 +31,7 @@ Player::~Player()
 	delete m_SpriteSheet;
 }
 
-void Player::Update(const double& deltaTime, const Map& map, const std::vector<Enemy>& enemies)
+void Player::Update(const double& deltaTime, const Map& map, const std::vector<Enemy*>& enemies)
 {
 	double speed = m_Speed * deltaTime;
 	glm::vec2 velocity(0);
@@ -40,9 +42,10 @@ void Player::Update(const double& deltaTime, const Map& map, const std::vector<E
 	{
 		m_ReadyToShoot = false;
 
-		for (const Enemy& e : enemies)
+		for (Enemy* e : enemies)
 		{
-			glm::vec2 enemyDir = e.GetPosition() - this->GetPosition();
+			if(e->GetState() == EnemyState::Death) continue;
+			glm::vec2 enemyDir = e->GetPosition() - this->GetPosition();
 			float sprite_distance = glm::length(enemyDir);
 
 			char hittedTexture;
@@ -66,7 +69,7 @@ void Player::Update(const double& deltaTime, const Map& map, const std::vector<E
 
 			int x_center_of_sprite_on_screen = static_cast<int>((sprite_angle - player_angle + fov / 2) * windowWidth / fov);
 			size_t sprite_screen_size = std::min(1000, static_cast<int>(windowHeight / sprite_distance));
-			size_t sprite_screen_size_scaled = sprite_screen_size * e.GetScaleFactor();
+			size_t sprite_screen_size_scaled = size_t(sprite_screen_size * e->GetScaleFactor());
 			sprite_screen_size = sprite_screen_size_scaled;
 			
 			float angleMin = (this->GetAngle() - fov / 2.0f) + (float)(x_center_of_sprite_on_screen - sprite_screen_size_scaled / 2) / windowWidth * fov;
@@ -80,16 +83,16 @@ void Player::Update(const double& deltaTime, const Map& map, const std::vector<E
 
 			if (m_Angle > angleMin && m_Angle < angleMax)
 			{
-				e.GetAnimation()->Play("TakeHit");
-
-				std::cout << "Hitted" << std::endl;
+				int randomDamage = rand() % 15;
+				e->TakeHit(m_Damage + randomDamage);
+				break;
 			}
 		}
 	}
 
 	if (!m_ReadyToShoot)
 	{
-		if (m_AnimationTime >= 0.05)
+		if (m_AnimationTime >= 0.06)
 		{
 			m_CurrentAnim++;
 			if (m_CurrentAnim >= 6)

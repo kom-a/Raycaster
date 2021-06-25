@@ -5,24 +5,33 @@
 #include "utils/resourcemanager.h"
 #include "spritesheet.h"
 
+struct AnimationLayer
+{
+	const SpriteSheet* sheet;
+	float scaleFactor;
+	int fps;
+};
+
 class Animation
 {
 public:
 	Animation();
 
-	void AddLayer(const SpriteSheet* layer, const int& fps, const std::string& name);
+	void AddLayer(const SpriteSheet* layer, const float& scaleFactor, const int& fps, const std::string& name);
 	Texture GetCurrentTexture() const;
 
 	void Play(const std::string& name);
 	void Update(const double& deltaTime);
 
-private:
-	const SpriteSheet* GetSpriteSheet(const std::string& name);
+	inline float GetScaleFactor() const { return m_CurrentLayer.scaleFactor; }
+	inline bool IsFinished() const { return !m_CurrentLayer.sheet->IsLooped() && m_CurrentFrame == m_CurrentLayer.sheet->GetCountX() - 1; }
 
 private:
-	std::unordered_map<std::string, const SpriteSheet*> m_Layers;
+	AnimationLayer GetSpriteSheet(const std::string& name);
+
+private:
+	std::unordered_map<std::string, AnimationLayer> m_Layers;
 	double m_AnimationTimer;
-	int m_FPS;
-	const SpriteSheet* m_CurrentSpriteSheet;
+	AnimationLayer m_CurrentLayer;
 	int m_CurrentFrame;
 };

@@ -59,7 +59,7 @@ void Renderer::Clear(const int& horizontOffset)
 {
 	int skyHeight = m_Height / 2 + horizontOffset;
 	if (skyHeight < 0) skyHeight = 0;
-	if (skyHeight > m_Height - 1) skyHeight = m_Height - 1;
+	if (skyHeight > (int)(m_Height) - 1) skyHeight = m_Height - 1;
 	int groundHeight = m_Height - skyHeight;
 
 	memset(m_Buffer, 200, m_Width * skyHeight * 3);
@@ -86,7 +86,7 @@ void Renderer::DrawWall(int x, float distance, const Texture& texture, int col, 
 	const float fov = (float)M_PI / 3.0f;
 	float angle = (player.GetAngle() - fov / 2.0f) + (float)x / m_Width * fov;
 	uint32_t wallHeight = (uint32_t)(m_Height / (distance * glm::cos(angle - player.GetAngle())));
-	int top = m_Height / 2 - wallHeight / 2 + player.GetYOffset();
+	int top = m_Height / 2 - wallHeight / 2;
 	const uint8_t* column = texture.GetColumn(col);
 
 
@@ -130,8 +130,8 @@ void Renderer::DrawSky(const Texture& texture, const Player& player)
 	for (size_t x = 0; x < m_Width; x++)
 	{
 		float angle = (player.GetAngle() - fov / 2.0f) + (float)x / m_Width * fov;
-		while (angle > (float)M_PI * 2) angle -= 2 * M_PI;
-		while (angle  < (float)-M_PI * 2) angle += 2 * M_PI;
+		while (angle > (float)M_PI * 2) angle -= 2 * (float)M_PI;
+		while (angle  < (float)-M_PI * 2) angle += 2 * (float)M_PI;
 		int xCoord = (int)(angle / (2 * M_PI) * texture.width);
 		if (xCoord < 0) xCoord += texture.width;
 		xCoord %= texture.width;
@@ -155,8 +155,8 @@ void Renderer::DrawSprite(const Sprite& sprite, const Player& player)
 	float sprite_distance = glm::length(sprite_dir);
 	const float fov = (float)M_PI / 3.0;
 
-	while (sprite_angle - player.GetAngle() > (float)M_PI) sprite_angle -= 2 * M_PI;
-	while (sprite_angle - player.GetAngle() < (float)-M_PI) sprite_angle += 2 * M_PI;
+	while (sprite_angle - player.GetAngle() > (float)M_PI) sprite_angle -= 2 * (float)M_PI;
+	while (sprite_angle - player.GetAngle() < (float)-M_PI) sprite_angle += 2 * (float)M_PI;
 
 	int x_center_of_sprite_on_screen = static_cast<int>((sprite_angle - player.GetAngle() + fov / 2) * m_Width / fov);
 	size_t sprite_screen_size = std::min(1000, static_cast<int>(m_Height / sprite_distance));
@@ -203,17 +203,6 @@ void Renderer::DrawPlayer(const Player& player, int x_offset, int y_offset)
 			Draw(m_Width / 2 - texture.width / 2 + x + x_offset, m_Height - texture.height + y + y_offset, glm::ivec3(r, g, b));
 		}
 	}
-
-
-	// Draw cursor
-	for (int y = 0; y < 9; y++)
-	{
-		Draw(m_Width / 2, m_Height / 2 - 4 + y, glm::ivec3(0));
-	}
-	for (int x = 0; x < 9; x++)
-	{
-		Draw(m_Width / 2 - 4 + x, m_Height / 2, glm::ivec3(0));
-	}
 }
 
 void Renderer::DrawEnemy(const Enemy& enemy, const Player& player)
@@ -223,16 +212,16 @@ void Renderer::DrawEnemy(const Enemy& enemy, const Player& player)
 	float sprite_distance = glm::length(dir);
 	const float fov = (float)M_PI / 3.0;
 
-	while (sprite_angle - player.GetAngle() > (float)M_PI) sprite_angle -= 2 * M_PI;
-	while (sprite_angle - player.GetAngle() < (float)-M_PI) sprite_angle += 2 * M_PI;
+	while (sprite_angle - player.GetAngle() > (float)M_PI) sprite_angle -= 2 * (float)M_PI;
+	while (sprite_angle - player.GetAngle() < (float)-M_PI) sprite_angle += 2 * (float)M_PI;
 
 	int x_center_of_sprite_on_screen = static_cast<int>((sprite_angle - player.GetAngle() + fov / 2) * m_Width / fov);
 	size_t sprite_screen_size = std::min(1000, static_cast<int>(m_Height / sprite_distance));
-	size_t sprite_screen_size_scaled = sprite_screen_size * enemy.GetScaleFactor();
+	size_t sprite_screen_size_scaled = size_t(sprite_screen_size * enemy.GetScaleFactor());
 	int y_offset = sprite_screen_size / 2 - sprite_screen_size_scaled / 2;
 	sprite_screen_size = sprite_screen_size_scaled;
 
-	int top_y = m_Height / 2 - sprite_screen_size / 2 + player.GetYOffset();
+	int top_y = m_Height / 2 - sprite_screen_size / 2;
 
 	for (size_t x = 0; x < sprite_screen_size; x++)
 	{

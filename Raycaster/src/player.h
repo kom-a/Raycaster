@@ -13,7 +13,7 @@ public:
 	Player(float x, float y, float angle, const char* filename, int textureWidth, int textureHeight);
 	~Player();
 
-	void Update(const double& deltaTime, const Map& map, const std::vector<Enemy>& enemies);
+	void Update(const double& deltaTime, const Map& map, const std::vector<Enemy*>& enemies);
 
 	inline const glm::vec2& GetPosition() const { return m_Position; }
 	inline const float& GetAngle() const { return m_Angle; }
@@ -35,4 +35,7 @@ private:
 	int m_CurrentAnim;
 	double m_AnimationTime;
 	const SpriteSheet* m_SpriteSheet;
+	
+	int m_Health;
+	int m_Damage;
 };

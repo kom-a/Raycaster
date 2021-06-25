@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <vector>
+#include <algorithm>
 #include <ctime>
 
 #include "window.h"
@@ -28,32 +29,29 @@ int main()
 	Window window(width, height, "Raycaster");
 	Renderer renderer(width, height);
 
-	Player player(6.0f, 3.0f, 0.0f, "res/2.png", 250, 250);
+	Player player(7.1f, 3.0f, 3.1415f, "res/2.png", 250, 250);
 	const Camera* camera = player.GetCamera();;
 
 	SpriteSheet sheet("res/spritesheet.bmp", 64, 64, false);
-	const Texture* sky = FileManager::LoadTexture("res/Nebula Blue.png");
+	// const Texture* sky = FileManager::LoadTexture("res/Nebula Blue.png");
 	Map map("res/maps/textureTestMap.rcm");
 
 	ResourceManager::LoadSpriteSheet("res/Goblin/Idle.png", 33, 36, true, "GoblinIdleSheet");
-	ResourceManager::LoadSpriteSheet("res/Goblin/Attack.png", 90, 48, false, "GoblinAttackSheet");
+	ResourceManager::LoadSpriteSheet("res/Goblin/Run.png", 36, 36, true, "GoblinRunSheet");
+	ResourceManager::LoadSpriteSheet("res/Goblin/Attack2.png", 50, 48, false, "GoblinAttackSheet");
 	ResourceManager::LoadSpriteSheet("res/Goblin/TakeHit.png", 42, 37, false, "GoblinTakeHitSheet");
 	ResourceManager::LoadSpriteSheet("res/Goblin/Death.png", 58, 40, false, "GoblinDeathSheet");
 
-	srand(time(NULL));
-	std::vector<Enemy> enemies;
-	for (int i = 0; i < 3; i++)
-	{
-		if (true)
-			enemies.push_back(Goblin(glm::vec2(3.0f, i * 2 + 2)));
-		else
-			enemies.push_back(FlyingEye(glm::vec2(3.0f, i * 2)));
-	}
+	std::vector<Enemy*> enemies;
+	for (int i = 0; i < 1; i++)
+			enemies.push_back(new Goblin(glm::vec2(3.0 * i + 2, 3)));
 
 	double lastTime = glfwGetTime();
 	double deltaTime = 0;
 	double unprocessedTime = 0;
 	int fps = 0;
+
+	srand((uint32_t) time(NULL));
 
 	while (!window.IsClosed())
 	{
@@ -70,12 +68,22 @@ int main()
 		}
 
 		player.Update(deltaTime, map, enemies);
-		for (Enemy& e : enemies)
+		for (Enemy* e : enemies)
 		{
-			e.Update(deltaTime);
+			e->Update(deltaTime, player);
 		}
-		
-		renderer.Clear(player.GetYOffset());
+
+		std::sort(enemies.begin(), enemies.end(),
+			[&](const Enemy* a, const Enemy* b) -> bool
+			{
+				// TODO: Optimize this
+
+				float len1 = glm::length(player.GetPosition() - a->GetPosition());
+				float len2 = glm::length(player.GetPosition() - b->GetPosition());
+				return len1 < len2;
+			});
+
+		renderer.Clear(0);
 		// renderer.DrawSky(*sky, player);
 #if 1
 		for (uint32_t x = 0; x < width; x++)
@@ -106,17 +114,12 @@ int main()
 		}
 #endif
 
-		/*renderer.DrawSprite(sprite, player);
-		renderer.DrawSprite(sprite2, player);
-		renderer.DrawSprite(sprite3, player);*/
-		for (Enemy& e : enemies)
+		for (int i = enemies.size() - 1; i >= 0; i--)
 		{
-			renderer.DrawEnemy(e, player);
+			renderer.DrawEnemy(*enemies[i], player);
 		}
 
-
-
-		renderer.DrawPlayer(player, -glm::sin(glfwGetTime() * 3) * 4, 100 - glm::sin(glfwGetTime()) * 2);
+		renderer.DrawPlayer(player, (int)(-glm::sin(glfwGetTime() * 3) * 4), (int)(100 - glm::sin(glfwGetTime()) * 2));
 
 		int error = glGetError();
 		if (error)
@@ -127,7 +130,6 @@ int main()
 		window.Update();
 		fps++;
 	}
-	delete sky;
-
+	// delete sky;
 	return 0;
 }

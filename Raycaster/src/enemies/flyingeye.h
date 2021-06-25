@@ -6,7 +6,7 @@ class FlyingEye : public Enemy
 {
 public:
 	FlyingEye(const glm::vec2& position)
-		: Enemy(position, "GoblinIdleSheet")
+		: Enemy(position)
 	{
 		m_Damage = 10;
 		m_Health = 100;
