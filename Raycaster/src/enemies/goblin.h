@@ -15,7 +15,7 @@ public:
 		 : Enemy(position)
 	{
 		m_Damage = 10;
-		m_Health = 20000;
+		m_Health = 30;
 		m_ScaleFactor = 0.7f;
 
 		const SpriteSheet* idleSheet = ResourceManager::GetSpriteSheet("GoblinIdleSheet");
@@ -45,12 +45,12 @@ public:
 		float length = glm::length(moveDirection);
 
 
-		if (length < chaseDistance && m_State != EnemyState::Run && m_State != EnemyState::TakeHit && m_State != EnemyState::Attack)
+		if (length < chaseDistance && m_State == EnemyState::Idle)
 		{
 			m_Animation->Play("Run");
 			m_State = EnemyState::Run;
 		}
-		else if(length > chaseDistance && m_State != EnemyState::Idle && m_State != EnemyState::TakeHit && m_State != EnemyState::Attack)
+		else if(length > chaseDistance && m_State == EnemyState::Run)
 		{
 			m_Animation->Play("Idle");
 			m_State = EnemyState::Idle;

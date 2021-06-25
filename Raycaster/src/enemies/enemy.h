@@ -57,6 +57,7 @@ public:
 		if (m_Health <= 0)
 		{
 			m_Health = 0;
+			m_Animation->Play("Death");
 			m_State = EnemyState::Death;
 		}
 	}
