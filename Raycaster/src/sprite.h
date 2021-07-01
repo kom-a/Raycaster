@@ -15,6 +15,8 @@ public:
 	inline const glm::vec2& GetPosition() const { return m_Position; }
 	inline const uint8_t* GetPixels() const { return m_Pixels; }
 
+	inline void SetPosition(const glm::vec2 new_position) { m_Position = new_position; }
+
 private:
 	glm::vec2 m_Position;
 	glm::ivec2 m_Size;

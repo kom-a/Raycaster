@@ -6,6 +6,7 @@
 #include "player.h"
 #include "spritesheet.h"
 #include "enemies/enemy.h"
+#include "enemies/magicball.h"
 
 class Renderer
 {

@@ -70,7 +70,6 @@ void Player::Update(const double& deltaTime, const Map& map, const std::vector<E
 			int x_center_of_sprite_on_screen = static_cast<int>((sprite_angle - player_angle + fov / 2) * windowWidth / fov);
 			size_t sprite_screen_size = std::min(1000, static_cast<int>(windowHeight / sprite_distance));
 			size_t sprite_screen_size_scaled = size_t(sprite_screen_size * e->GetScaleFactor());
-			sprite_screen_size = sprite_screen_size_scaled;
 			
 			float angleMin = (this->GetAngle() - fov / 2.0f) + (float)(x_center_of_sprite_on_screen - sprite_screen_size_scaled / 2) / windowWidth * fov;
 			float angleMax = (this->GetAngle() - fov / 2.0f) + (float)(x_center_of_sprite_on_screen + sprite_screen_size_scaled / 2) / windowWidth * fov;

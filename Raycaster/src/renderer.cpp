@@ -9,13 +9,11 @@ Renderer::Renderer(uint32_t width, uint32_t height)
 	glGenVertexArrays(1, &m_VAO);
 	glBindVertexArray(m_VAO);
 
-	int error = glGetError();
-
 	m_BufferSize = width * height * 3;
 	m_Buffer = new uint8_t[m_BufferSize];
 	memset(m_Buffer, 0x00, m_BufferSize);
 
-	m_DepthBuffer = new float[m_Width];
+	m_DepthBuffer = new float[m_Width * m_Height];
 
 	glGenTextures(1, &m_Texture);
 	glBindTexture(GL_TEXTURE_2D, m_Texture);
@@ -23,8 +21,6 @@ Renderer::Renderer(uint32_t width, uint32_t height)
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	glGenBuffers(1, &m_VBO);
-
-	error = glGetError();
 
 	float vertices[] =
 	{
@@ -46,11 +42,11 @@ Renderer::Renderer(uint32_t width, uint32_t height)
 
 	m_Shader = new Shader("res/vertex.glsl", "res/fragment.glsl");
 	m_Shader->Bind();
-	error = glGetError();
 }
 
 Renderer::~Renderer()
 {
+	delete[] m_DepthBuffer;
 	delete[] m_Buffer;
 	delete m_Shader;
 }
@@ -88,7 +84,6 @@ void Renderer::DrawWall(int x, float distance, const Texture& texture, int col, 
 	uint32_t wallHeight = (uint32_t)(m_Height / (distance * glm::cos(angle - player.GetAngle())));
 	int top = m_Height / 2 - wallHeight / 2;
 	const uint8_t* column = texture.GetColumn(col);
-
 
 	if (wallHeight <= m_Height)
 	{
@@ -160,6 +155,9 @@ void Renderer::DrawSprite(const Sprite& sprite, const Player& player)
 
 	int x_center_of_sprite_on_screen = static_cast<int>((sprite_angle - player.GetAngle() + fov / 2) * m_Width / fov);
 	size_t sprite_screen_size = std::min(1000, static_cast<int>(m_Height / sprite_distance));
+	size_t sprite_screen_size_scaled = size_t(sprite_screen_size * 0.2f);
+	int y_offset = sprite_screen_size / 2 - sprite_screen_size_scaled / 2;
+	sprite_screen_size = sprite_screen_size_scaled;
 
 	int top_y = m_Height / 2 - sprite_screen_size / 2;
 
@@ -225,6 +223,7 @@ void Renderer::DrawEnemy(const Enemy& enemy, const Player& player)
 
 	for (size_t x = 0; x < sprite_screen_size; x++)
 	{
+		// TODO: enemy's sprite is shifted to the right for half of sprite size (???)
 		int x_coord_on_screen = x_center_of_sprite_on_screen - sprite_screen_size / 2 + x;
 		if (x_coord_on_screen >= (int)m_Width) break;
 		if (x_coord_on_screen < 0) continue;

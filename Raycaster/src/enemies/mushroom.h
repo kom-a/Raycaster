@@ -9,26 +9,26 @@
 #include <glm/glm.hpp>
 
 
-class Goblin : public Enemy
+class Mushroom : public Enemy
 {
 public:
-	Goblin(const glm::vec2& position)
-		 : Enemy(position)
+	Mushroom(const glm::vec2& position)
+		: Enemy(position)
 	{
 		m_Damage = 10;
-		m_Health = 20;
+		m_Health = 80;
 
-		const SpriteSheet* idleSheet = ResourceManager::GetSpriteSheet("GoblinIdleSheet");
-		const SpriteSheet* runSheet = ResourceManager::GetSpriteSheet("GoblinRunSheet");
-		const SpriteSheet* attackSheet = ResourceManager::GetSpriteSheet("GoblinAttackSheet");
-		const SpriteSheet* deathSheet = ResourceManager::GetSpriteSheet("GoblinDeathSheet");
-		const SpriteSheet* takeHitSheet = ResourceManager::GetSpriteSheet("GoblinTakeHitSheet");
+		const SpriteSheet* idleSheet = ResourceManager::GetSpriteSheet("MushroomIdleSheet");
+		const SpriteSheet* runSheet = ResourceManager::GetSpriteSheet("MushroomRunSheet");
+		const SpriteSheet* takeHitSheet = ResourceManager::GetSpriteSheet("MushroomTakeHitSheet");
+		const SpriteSheet* deathSheet = ResourceManager::GetSpriteSheet("MushroomDeathSheet");
+		const SpriteSheet* attackSheet = ResourceManager::GetSpriteSheet("MushroomAttackSheet");
 
-		m_Animation->AddLayer(idleSheet,	 0.7f, 10, "Idle");
-		m_Animation->AddLayer(runSheet,		 0.7f, 10, "Run");
-		m_Animation->AddLayer(attackSheet,	 0.9f, 18, "Attack");
-		m_Animation->AddLayer(deathSheet,	 0.7f, 10, "Death");
-		m_Animation->AddLayer(takeHitSheet,	 0.7f, 12, "TakeHit");
+		m_Animation->AddLayer(idleSheet, 0.7f, 10, "Idle");
+		m_Animation->AddLayer(runSheet, 0.7f, 10, "Run");
+		m_Animation->AddLayer(takeHitSheet, 0.9f, 18, "TakeHit");
+		m_Animation->AddLayer(deathSheet, 0.7f, 10, "Death");
+		m_Animation->AddLayer(attackSheet, 0.80f, 12, "Attack");
 
 		m_Animation->Play("Idle");
 	}
@@ -41,7 +41,7 @@ public:
 
 		const float chaseDistance = 8.0f;
 		const float attackDistance = 0.6f;
-		
+
 		glm::vec2 moveDirection = player.GetPosition() - m_Position;
 		float length = glm::length(moveDirection);
 		moveDirection = glm::normalize(moveDirection);
@@ -68,7 +68,7 @@ public:
 				float speed = 1.5f * deltaTime;
 				m_Position += moveDirection * speed;
 			}
-			else if(m_State != EnemyState::Attack)
+			else if (m_State != EnemyState::Attack)
 			{
 				m_State = EnemyState::Attack;
 				m_Animation->Play("Attack");
@@ -76,7 +76,7 @@ public:
 		}
 		else if (m_State == EnemyState::TakeHit)
 		{
-			if(m_Animation->IsFinished())
+			if (m_Animation->IsFinished())
 				m_State = EnemyState::Idle;
 		}
 		else if (m_State == EnemyState::Attack)
