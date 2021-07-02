@@ -20,6 +20,9 @@ public:
 	void DrawSky(const Texture& texture, const Player& player);
 	void DrawSprite(const Sprite& sprite, const Player& player);
 	void DrawPlayer(const Player& player, int x_offset, int y_offset);
+	void DrawRect(int x, int y, int width, int height, const glm::ivec3& color);
+	void FillRect(int x, int y, int width, int height, const glm::ivec3& color);
+	void DrawHUD(const Player& player);
 	void DrawEnemy(const Enemy& enemy, const Player& player);
 	void Flush();
 

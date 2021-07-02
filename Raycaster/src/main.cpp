@@ -34,10 +34,10 @@ int main()
 	Player player(17.1f, 5.0f, 3.1415f, "res/2.png", 250, 250);
 	const Camera* camera = player.GetCamera();
 
-	SpriteSheet sheet("res/walltext.png", 64, 64, false);
+	SpriteSheet sheet("res/spritesheet.bmp", 64, 64, false);
 	 //const Texture* sky = FileManager::LoadTexture("res/Nebula Blue.png");
 	const Texture* sky = FileManager::LoadTexture("res/sky2.jpg");
-	Map map("res/maps/map.rcm");
+	Map map("res/maps/map2.rcm");
 
 	ResourceManager::LoadSpriteSheet("res/Goblin/Idle.png", 33, 36, true, "GoblinIdleSheet");
 	ResourceManager::LoadSpriteSheet("res/Goblin/Run.png", 36, 36, true, "GoblinRunSheet");
@@ -69,11 +69,11 @@ int main()
 		if (i < 3)
 			enemies.push_back(new Goblin(glm::vec2(3, 3 + i)));
 		else if (i < 6)
-			enemies.push_back(new FlyingEye(glm::vec2(3, 3 + i)));
+			enemies.push_back(new Skeleton(glm::vec2(3, 3 + i)));
 		else if(i < 9)
 			enemies.push_back(new Mushroom(glm::vec2(3, 3 + i)));
 		else
-			enemies.push_back(new Skeleton(glm::vec2(3, 3 + i)));
+			enemies.push_back(new FlyingEye(glm::vec2(3, 3 + i)));
 	}
 
 	double lastTime = glfwGetTime();
@@ -165,17 +165,18 @@ int main()
 
 		for (int i = bullets.size() - 1; i >= 0; i--)
 		{
+			if (bullets[i]->IsDestroyed()) continue;
 			renderer.DrawSprite(bullets[i]->GetSprite(), player);
 		}
 
 		renderer.DrawPlayer(player, (int)(-glm::sin(glfwGetTime() * 3) * 4), (int)(100 - glm::sin(glfwGetTime()) * 2));
-		// renderer.DrawPlayer(player, 0, 100);
+		renderer.DrawHUD(player);
 		
-
 		int error = glGetError();
 		if (error)
 			std::cout << "OpenGL ERROR: " << error << std::endl;
 
+		
 		renderer.Flush();
 
 		window.Update();

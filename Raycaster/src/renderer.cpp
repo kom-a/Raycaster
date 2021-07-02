@@ -68,12 +68,13 @@ void Renderer::Clear(const int& horizontOffset)
 
 void Renderer::Draw(int x, int y, const glm::ivec3& color)
 {
+	glm::ivec3 clampedColor = glm::clamp(color, glm::ivec3(0), glm::ivec3(255));
 	size_t index = (y * m_Width + x) * 3;
 	if (index >= 0 && index < m_BufferSize)
 	{
-		m_Buffer[index + 0] = color.r;
-		m_Buffer[index + 1] = color.g;
-		m_Buffer[index + 2] = color.b;
+		m_Buffer[index + 0] = clampedColor.r;
+		m_Buffer[index + 1] = clampedColor.g;
+		m_Buffer[index + 2] = clampedColor.b;
 	}
 }
 
@@ -84,6 +85,7 @@ void Renderer::DrawWall(int x, float distance, const Texture& texture, int col, 
 	uint32_t wallHeight = (uint32_t)(m_Height / (distance * glm::cos(angle - player.GetAngle())));
 	int top = m_Height / 2 - wallHeight / 2;
 	const uint8_t* column = texture.GetColumn(col);
+	const float shadowDistance = 50;
 
 	if (wallHeight <= m_Height)
 	{
@@ -94,7 +96,7 @@ void Renderer::DrawWall(int x, float distance, const Texture& texture, int col, 
 			int g = column[index * 3 + 1];
 			int b = column[index * 3 + 2];
 
-			Draw(x, top + y, glm::ivec3(r, g, b));
+			Draw(x, top + y, glm::vec3(r, g, b) * (1.0f - distance / shadowDistance));
 		}
 	}
 	else 
@@ -201,6 +203,47 @@ void Renderer::DrawPlayer(const Player& player, int x_offset, int y_offset)
 			Draw(m_Width / 2 - texture.width / 2 + x + x_offset, m_Height - texture.height + y + y_offset, glm::ivec3(r, g, b));
 		}
 	}
+}
+
+void Renderer::DrawRect(int x, int y, int width, int height, const glm::ivec3& color)
+{
+	for (int xx = x; xx <= x + width; xx++)
+	{
+		Draw(xx, y, color);
+		Draw(xx, y + height, color);
+	}
+	for (int yy = y; yy <= y + height; yy++)
+	{
+		Draw(x, yy, color);
+		Draw(x + width, yy, color);
+	}
+}
+
+void Renderer::FillRect(int x, int y, int width, int height, const glm::ivec3& color)
+{
+	for (int yy = y; yy <= y + height; yy++)
+	{
+		for (int xx = x; xx <= x + width; xx++)
+		{
+			Draw(xx, yy, color);
+		}
+	}
+}
+
+void Renderer::DrawHUD(const Player& player)
+{
+	const int healthBarWidth = 150;
+	const int healthBarHeight = 15;
+	const glm::ivec3 barColor(130, 20, 10);
+	const glm::ivec3 healthColor(240, 15, 0);
+	const int mappedHealth = (float)player.GetHealth() / player.GetMaxHealth() * healthBarWidth;
+	int xBar = 5;
+	int yBar = m_Height - healthBarHeight - 5;
+
+	DrawRect(xBar, yBar, healthBarWidth, healthBarHeight, glm::ivec3(0));
+
+	FillRect(xBar + 1, yBar + 1, healthBarWidth - 2, healthBarHeight - 2, barColor);
+	FillRect(xBar + 1, yBar + 1, mappedHealth - 2, healthBarHeight - 2, healthColor);
 }
 
 void Renderer::DrawEnemy(const Enemy& enemy, const Player& player)

@@ -20,6 +20,16 @@ public:
 	inline int GetYOffset() const { return m_YOffset; }
 	inline Texture GetTexture() const { return m_SpriteSheet->operator[](m_CurrentAnim); }
 	inline const Camera* GetCamera() const { return m_Camera; }
+	inline const int GetHealth() const { return m_Health; }
+	inline const int GetMaxHealth() const { return m_MaxHealth; }
+
+	void TakeHit(int damage);
+
+private:
+	void Shoot(const Map& map, const std::vector<Enemy*>& enemies);
+	void UpdateMovement(const double& deltaTime);
+	void UpdateAnimation(const double& deltaTime);
+	void ResolveCollision(const Map& map);
 
 private:
 	glm::vec2 m_Position;
@@ -36,6 +46,7 @@ private:
 	double m_AnimationTime;
 	const SpriteSheet* m_SpriteSheet;
 	
+	int m_MaxHealth;
 	int m_Health;
 	int m_Damage;
 };

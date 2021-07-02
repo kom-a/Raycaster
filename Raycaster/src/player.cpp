@@ -18,7 +18,8 @@ Player::Player(float x, float y, float angle, const char* filename, int textureW
 	m_CurrentAnim(0),
 	m_AnimationTime(0),
 	m_ReadyToShoot(true),
-	m_Health(100),
+	m_MaxHealth(100),
+	m_Health(m_MaxHealth),
 	m_Damage(10)
 {
 	m_Camera = new Camera(PI / 3);
@@ -33,76 +34,78 @@ Player::~Player()
 
 void Player::Update(const double& deltaTime, const Map& map, const std::vector<Enemy*>& enemies)
 {
+	if (m_ReadyToShoot && Mouse::IsButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
+		Shoot(map, enemies);
+
+	UpdateAnimation(deltaTime);
+
+	UpdateMovement(deltaTime);
+
+	ResolveCollision(map);
+}
+
+void Player::TakeHit(int damage)
+{
+	m_Health -= damage;
+	std::cout << "Health: " << m_Health << std::endl;
+}
+
+void Player::Shoot(const Map& map, const std::vector<Enemy*>& enemies)
+{
+	m_ReadyToShoot = false;
+
+	for (Enemy* e : enemies)
+	{
+		if (e->GetState() == EnemyState::Death) continue;
+		glm::vec2 enemyDir = e->GetPosition() - this->GetPosition();
+		float sprite_distance = glm::length(enemyDir);
+
+		char hittedTexture;
+		glm::vec2 intersectionPoint = m_Camera->CastRay(m_Position, glm::vec2(glm::cos(m_Angle), glm::sin(m_Angle)), map, &hittedTexture);
+		float rayToWallLength = glm::length(intersectionPoint - m_Position);
+		if (rayToWallLength < sprite_distance) continue;
+
+		float sprite_angle = glm::atan(enemyDir.y, enemyDir.x);
+		const float fov = PI / 3.0;
+
+		while (sprite_angle > 2 * PI) sprite_angle -= 2 * PI;
+		while (sprite_angle < 0) sprite_angle += 2 * PI;
+
+		float player_angle = m_Angle;
+		while (player_angle > 2 * PI) player_angle -= 2 * PI;
+		while (player_angle < 0) player_angle += 2 * PI;
+
+		// TODO: Rewrite this
+		int windowWidth = 640;
+		int windowHeight = windowWidth * 9 / 16;
+
+		int x_center_of_sprite_on_screen = static_cast<int>((sprite_angle - player_angle + fov / 2) * windowWidth / fov);
+		size_t sprite_screen_size = std::min(1000, static_cast<int>(windowHeight / sprite_distance));
+		size_t sprite_screen_size_scaled = size_t(sprite_screen_size * e->GetScaleFactor());
+
+		float angleMin = (this->GetAngle() - fov / 2.0f) + (float)(x_center_of_sprite_on_screen - sprite_screen_size_scaled / 2) / windowWidth * fov;
+		float angleMax = (this->GetAngle() - fov / 2.0f) + (float)(x_center_of_sprite_on_screen + sprite_screen_size_scaled / 2) / windowWidth * fov;
+
+		while (angleMin - this->GetAngle() > PI) angleMin -= 2 * PI;
+		while (angleMin - this->GetAngle() < -PI) angleMin += 2 * PI;
+
+		while (angleMax - this->GetAngle() > PI) angleMax -= 2 * PI;
+		while (angleMax - this->GetAngle() < -PI) angleMax += 2 * PI;
+
+		if (m_Angle > angleMin && m_Angle < angleMax)
+		{
+			int randomDamage = rand() % 15;
+			e->TakeHit(m_Damage + randomDamage);
+			break;
+		}
+	}
+}
+
+void Player::UpdateMovement(const double& deltaTime)
+{
 	double speed = m_Speed * deltaTime;
 	glm::vec2 velocity(0);
 
-	m_AnimationTime += deltaTime;
-
-	if (m_ReadyToShoot && Mouse::IsButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
-	{
-		m_ReadyToShoot = false;
-
-		for (Enemy* e : enemies)
-		{
-			if(e->GetState() == EnemyState::Death) continue;
-			glm::vec2 enemyDir = e->GetPosition() - this->GetPosition();
-			float sprite_distance = glm::length(enemyDir);
-
-			char hittedTexture;
-			glm::vec2 intersectionPoint = m_Camera->CastRay(m_Position, glm::vec2(glm::cos(m_Angle), glm::sin(m_Angle)), map, &hittedTexture);
-			float rayToWallLength = glm::length(intersectionPoint - m_Position);
-			if (rayToWallLength < sprite_distance) continue;
-
-			float sprite_angle = glm::atan(enemyDir.y, enemyDir.x);
-			const float fov = PI / 3.0;
-
-			while (sprite_angle > 2 * PI) sprite_angle -= 2 * PI;
-			while (sprite_angle < 0) sprite_angle += 2 * PI;
-
-			float player_angle = m_Angle;
-			while (player_angle > 2 * PI) player_angle -= 2 * PI;
-			while (player_angle < 0) player_angle += 2 * PI;
-			
-			// TODO: Rewrite this
-			int windowWidth = 640;
-			int windowHeight = windowWidth * 9 / 16;
-
-			int x_center_of_sprite_on_screen = static_cast<int>((sprite_angle - player_angle + fov / 2) * windowWidth / fov);
-			size_t sprite_screen_size = std::min(1000, static_cast<int>(windowHeight / sprite_distance));
-			size_t sprite_screen_size_scaled = size_t(sprite_screen_size * e->GetScaleFactor());
-			
-			float angleMin = (this->GetAngle() - fov / 2.0f) + (float)(x_center_of_sprite_on_screen - sprite_screen_size_scaled / 2) / windowWidth * fov;
-			float angleMax = (this->GetAngle() - fov / 2.0f) + (float)(x_center_of_sprite_on_screen + sprite_screen_size_scaled / 2) / windowWidth * fov;
-
-			while (angleMin - this->GetAngle() > PI) angleMin -= 2 * PI;
-			while (angleMin - this->GetAngle() < -PI) angleMin += 2 * PI;
-
-			while (angleMax - this->GetAngle() > PI) angleMax -= 2 * PI;
-			while (angleMax - this->GetAngle() < -PI) angleMax += 2 * PI;
-
-			if (m_Angle > angleMin && m_Angle < angleMax)
-			{
-				int randomDamage = rand() % 15;
-				e->TakeHit(m_Damage + randomDamage);
-				break;
-			}
-		}
-	}
-
-	if (!m_ReadyToShoot)
-	{
-		if (m_AnimationTime >= 0.05)
-		{
-			m_CurrentAnim++;
-			if (m_CurrentAnim >= 6)
-			{
-				m_ReadyToShoot = true;
-				m_CurrentAnim = 0;
-			}
-			m_AnimationTime = 0;
-		}
-	}
-	
 	if (Keyboard::IsKeyPressed(GLFW_KEY_LEFT_SHIFT))
 	{
 		speed *= 2;
@@ -133,10 +136,33 @@ void Player::Update(const double& deltaTime, const Map& map, const std::vector<E
 
 	if (velocity != glm::vec2(0))
 		velocity = glm::normalize(velocity) * float(speed);
-	
-	glm::vec2 potentionalPosition = m_Position + velocity;
 
-	// Collision detection
+	glm::vec2 potentionalPosition = m_Position + velocity;
+	m_Position = potentionalPosition;
+}
+
+void Player::UpdateAnimation(const double& deltaTime)
+{
+	m_AnimationTime += deltaTime;
+	if (!m_ReadyToShoot)
+	{
+		if (m_AnimationTime >= 0.05)
+		{
+			m_CurrentAnim++;
+			if (m_CurrentAnim >= 6)
+			{
+				m_ReadyToShoot = true;
+				m_CurrentAnim = 0;
+			}
+			m_AnimationTime = 0;
+		}
+	}
+}
+
+void Player::ResolveCollision(const Map& map)
+{
+	glm::vec2 potentionalPosition = m_Position;
+
 	glm::ivec2 currentCell = glm::floor(m_Position);
 	glm::ivec2 targetCell = potentionalPosition;
 	glm::ivec2 areaTL = glm::max(glm::min(currentCell, targetCell) - glm::ivec2(1, 1), glm::ivec2(0, 0));
@@ -154,7 +180,7 @@ void Player::Update(const double& deltaTime, const Map& map, const std::vector<E
 				glm::vec2 nearestPoint;
 				nearestPoint.x = glm::max(float(cell.x), glm::min(potentionalPosition.x, float(cell.x + 1)));
 				nearestPoint.y = glm::max(float(cell.y), glm::min(potentionalPosition.y, float(cell.y + 1)));
-				
+
 				glm::vec2 rayToNearest = nearestPoint - potentionalPosition;
 				float overlap = radius - glm::length(rayToNearest);
 

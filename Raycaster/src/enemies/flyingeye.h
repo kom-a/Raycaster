@@ -9,7 +9,7 @@ public:
 	FlyingEye(const glm::vec2& position)
 		: Enemy(position), m_ReloadingTime(5.0f), m_Timer(0)
 	{
-		m_Damage = 10;
+		m_Damage = 20;
 		m_Health = 40;
 
 		const SpriteSheet* idleSheet = ResourceManager::GetSpriteSheet("FlyingEyeIdleSheet");
@@ -25,7 +25,7 @@ public:
 		m_Animation->Play("Idle");
 	}
 
-	void Update(double deltaTime, const Player& player, const Map& map) override
+	void Update(double deltaTime, Player& player, const Map& map) override
 	{
 		Enemy::Update(deltaTime, player, map);
 		if (m_State == EnemyState::Death) return;
@@ -58,7 +58,7 @@ public:
 				m_Bullets.push_back(new MagicBall(m_Position, playerDirection, 5.0f));
 			}
 		}
-		if (length < chaseDistance && length > attackDistance)
+		if (length < chaseDistance && length > attackDistance && isPlayerVisible)
 		{
 			float speed = 1.5f * deltaTime;
 			m_Position += playerDirection * speed;
@@ -71,9 +71,18 @@ public:
 		if (m_Timer >= m_ReloadingTime)
 			m_Timer = 0;
 		
+		const float hitDistance = 0.5f;
 		for (MagicBall* m : m_Bullets)
 		{
+			if(m->IsDestroyed()) continue;
 			m->Update(deltaTime);
+			float bulletToPlayerDistance = glm::length(player.GetPosition() - m->GetPosition());
+
+			if (bulletToPlayerDistance < hitDistance)
+			{
+				player.TakeHit(m_Damage);
+				m->Destroy();
+			}
 		}
 	}
 

@@ -15,8 +15,8 @@ public:
 	Goblin(const glm::vec2& position)
 		 : Enemy(position)
 	{
-		m_Damage = 10;
-		m_Health = 20;
+		m_Damage = 15;
+		m_Health = 45;
 
 		const SpriteSheet* idleSheet = ResourceManager::GetSpriteSheet("GoblinIdleSheet");
 		const SpriteSheet* runSheet = ResourceManager::GetSpriteSheet("GoblinRunSheet");
@@ -33,7 +33,7 @@ public:
 		m_Animation->Play("Idle");
 	}
 
-	void Update(double deltaTime, const Player& player, const Map& map) override
+	void Update(double deltaTime, Player& player, const Map& map) override
 	{
 		Enemy::Update(deltaTime, player, map);
 		if (m_State == EnemyState::Death) return;
@@ -82,7 +82,13 @@ public:
 		else if (m_State == EnemyState::Attack)
 		{
 			if (m_Animation->IsFinished())
+			{
 				m_State = EnemyState::Idle;
+				if (length <= attackDistance)
+				{
+					player.TakeHit(m_Damage);
+				}
+			}
 		}
 	}
 

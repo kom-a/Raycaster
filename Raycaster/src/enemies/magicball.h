@@ -7,11 +7,12 @@ class MagicBall
 {
 public:
 	MagicBall(const glm::vec2& position, const glm::vec2& direction, const float& speed)
-		: 
-		m_Position(position), 
-		m_Direction(direction), 
-		m_Speed(speed), 
-		m_Sprite("res/FlyingEye/magicBall.png", position.x, position.y)
+		:
+		m_Position(position),
+		m_Direction(direction),
+		m_Speed(speed),
+		m_Sprite("res/FlyingEye/magicBall.png", position.x, position.y),
+		m_IsDestroyed(false)
 	{
 
 	}
@@ -25,9 +26,13 @@ public:
 	inline const glm::vec2& GetPosition() const { return m_Position; }
 	inline const Sprite& GetSprite() const { return m_Sprite; }
 
+	inline void Destroy() { m_IsDestroyed = true; }
+	inline bool IsDestroyed() const { return m_IsDestroyed; }
+
 private:
 	glm::vec2 m_Position;
 	glm::vec2 m_Direction;
 	float m_Speed;
 	Sprite m_Sprite;
+	bool m_IsDestroyed;
 };

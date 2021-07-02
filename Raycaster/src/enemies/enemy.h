@@ -26,14 +26,13 @@ protected:
 	Enemy(const glm::vec2& position)
 		: m_Position(position), m_Health(100), m_Damage(1), m_State(EnemyState::Idle)
 	{
-		// m_SpriteSheet = ResourceManager::GetSpriteSheet("GoblinIdleSheet");
 		m_Animation = new Animation();
 	}
 
 public:
 	virtual ~Enemy()
 	{
-		 // delete m_SpriteSheet;
+		delete m_Animation;
 	}
 
 public:
@@ -43,7 +42,7 @@ public:
 	inline Animation* GetAnimation() const { return m_Animation; }
 	inline EnemyState GetState() const { return m_State; }
 
-	virtual void Update(double deltaTime, const Player& player, const Map& map)
+	virtual void Update(double deltaTime, Player& player, const Map& map)
 	{
 		m_Animation->Update(deltaTime);
 	};

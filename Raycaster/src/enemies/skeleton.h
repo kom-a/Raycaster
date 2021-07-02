@@ -26,14 +26,14 @@ public:
 
 		m_Animation->AddLayer(idleSheet, 0.7f, 10, "Idle");
 		m_Animation->AddLayer(runSheet, 0.7f, 10, "Run");
-		m_Animation->AddLayer(attackSheet, 0.7f, 18, "Attack");
+		m_Animation->AddLayer(attackSheet, 0.65f, 20, "Attack");
 		m_Animation->AddLayer(deathSheet, 0.7f, 10, "Death");
 		m_Animation->AddLayer(takeHitSheet, 0.7f, 12, "TakeHit");
 
 		m_Animation->Play("Idle");
 	}
 
-	void Update(double deltaTime, const Player& player, const Map& map) override
+	void Update(double deltaTime, Player& player, const Map& map) override
 	{
 		Enemy::Update(deltaTime, player, map);
 		if (m_State == EnemyState::Death) return;
@@ -82,7 +82,13 @@ public:
 		else if (m_State == EnemyState::Attack)
 		{
 			if (m_Animation->IsFinished())
+			{
 				m_State = EnemyState::Idle;
+				if (length <= attackDistance)
+				{
+					player.TakeHit(m_Damage);
+				}
+			}
 		}
 	}
 

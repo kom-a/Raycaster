@@ -15,7 +15,7 @@ public:
 	Mushroom(const glm::vec2& position)
 		: Enemy(position)
 	{
-		m_Damage = 10;
+		m_Damage = 35;
 		m_Health = 80;
 
 		const SpriteSheet* idleSheet = ResourceManager::GetSpriteSheet("MushroomIdleSheet");
@@ -28,12 +28,12 @@ public:
 		m_Animation->AddLayer(runSheet, 0.7f, 10, "Run");
 		m_Animation->AddLayer(takeHitSheet, 0.9f, 18, "TakeHit");
 		m_Animation->AddLayer(deathSheet, 0.7f, 10, "Death");
-		m_Animation->AddLayer(attackSheet, 0.80f, 12, "Attack");
+		m_Animation->AddLayer(attackSheet, 0.80f, 10, "Attack");
 
 		m_Animation->Play("Idle");
 	}
 
-	void Update(double deltaTime, const Player& player, const Map& map) override
+	void Update(double deltaTime, Player& player, const Map& map) override
 	{
 		Enemy::Update(deltaTime, player, map);
 		if (m_State == EnemyState::Death) return;
@@ -82,7 +82,13 @@ public:
 		else if (m_State == EnemyState::Attack)
 		{
 			if (m_Animation->IsFinished())
+			{
 				m_State = EnemyState::Idle;
+				if (length <= attackDistance * 2)
+				{
+					player.TakeHit(m_Damage);
+				}
+			}
 		}
 	}
 
