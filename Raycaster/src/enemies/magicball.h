@@ -11,7 +11,7 @@ public:
 		m_Position(position),
 		m_Direction(direction),
 		m_Speed(speed),
-		m_Sprite("res/FlyingEye/magicBall.png", position.x, position.y),
+		m_Sprite("res/FlyingEye/magicBall.png", position.x, position.y, 0.2f, false),
 		m_IsDestroyed(false)
 	{
 

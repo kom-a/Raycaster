@@ -75,6 +75,7 @@ void Renderer::Draw(int x, int y, const glm::ivec3& color)
 		m_Buffer[index + 0] = clampedColor.r;
 		m_Buffer[index + 1] = clampedColor.g;
 		m_Buffer[index + 2] = clampedColor.b;
+		
 	}
 }
 
@@ -157,11 +158,12 @@ void Renderer::DrawSprite(const Sprite& sprite, const Player& player)
 
 	int x_center_of_sprite_on_screen = static_cast<int>((sprite_angle - player.GetAngle() + fov / 2) * m_Width / fov);
 	size_t sprite_screen_size = std::min(1000, static_cast<int>(m_Height / sprite_distance));
-	size_t sprite_screen_size_scaled = size_t(sprite_screen_size * 0.2f);
+	size_t sprite_screen_size_scaled = size_t(sprite_screen_size * sprite.GetScale());
 	int y_offset = sprite_screen_size / 2 - sprite_screen_size_scaled / 2;
 	sprite_screen_size = sprite_screen_size_scaled;
-
 	int top_y = m_Height / 2 - sprite_screen_size / 2;
+	if (sprite.IsOnGround())
+		top_y += y_offset;
 
 	for (size_t x = 0; x < sprite_screen_size; x++)
 	{
@@ -230,6 +232,34 @@ void Renderer::FillRect(int x, int y, int width, int height, const glm::ivec3& c
 	}
 }
 
+void Renderer::DrawString(int x, int y, std::string str, int fontSize)
+{
+	const SpriteSheet* fontSheet = ResourceManager::GetSpriteSheet("Font");
+	const size_t size = str.size();
+	
+	for (int i = 0; i < size; i++)
+	{
+		if(!isalpha(str[i])) continue;
+		size_t letterIndex = std::toupper(str[i]) - 'A';
+		Texture letterTexture = (*fontSheet)[letterIndex];
+		
+		for (int xx = 0; xx < fontSize; xx++)
+		{
+			const uint8_t* column = letterTexture.GetColumn(static_cast<int>((float)xx / fontSize * letterTexture.width));
+			for (int yy = 0; yy < fontSize; yy++)
+			{
+				size_t index = int((float)yy / fontSize * letterTexture.height) * 3;
+				int r = column[index + 0];
+				int g = column[index + 1];
+				int b = column[index + 2];
+
+				if (r == 255 && g == 0 && b == 255) continue; // MAGENTA
+				Draw(x + xx + i * fontSize, yy + y, glm::ivec3(r, g, b));
+			}
+		}
+	}
+}
+
 void Renderer::DrawHUD(const Player& player)
 {
 	const int healthBarWidth = 150;
@@ -271,6 +301,8 @@ void Renderer::DrawEnemy(const Enemy& enemy, const Player& player)
 		if (x_coord_on_screen >= (int)m_Width) break;
 		if (x_coord_on_screen < 0) continue;
 		if (sprite_distance > m_DepthBuffer[x_coord_on_screen]) continue;
+		if(enemy.GetState() != EnemyState::Death)
+			m_DepthBuffer[x_coord_on_screen] = sprite_distance;
 		Texture texture = enemy.GetCurrentTexture();
 		const uint8_t* column = texture.GetColumn(static_cast<int>((float)x / sprite_screen_size * texture.width));
 		for (size_t y = 0; y < sprite_screen_size; y++)

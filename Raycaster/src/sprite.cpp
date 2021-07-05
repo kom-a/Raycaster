@@ -8,8 +8,8 @@
 #include "utils/filemanager.h"
 #include "stb_image.h"
 
-Sprite::Sprite(const char* filename, int x, int y)
-	: m_Pixels(nullptr), m_Position(x, y)
+Sprite::Sprite(const char* filename, int x, int y, float scale, bool onGround)
+	: m_Pixels(nullptr), m_Position(x, y), m_Scale(scale), m_OnGround(onGround)
 {
 	int comp;
 	uint8_t* rowMajorPixels = stbi_load(filename, &m_Size.x, &m_Size.y, &comp, 3);

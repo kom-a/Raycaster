@@ -34,7 +34,6 @@ void Window::Init()
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	m_GLFWwindow = glfwCreateWindow(m_Width, m_Height, m_Title, nullptr, nullptr);
 	glfwMakeContextCurrent(m_GLFWwindow);
-
 	glfwSetFramebufferSizeCallback(m_GLFWwindow, window_resize_callback);
 	glfwSetCursorPosCallback(m_GLFWwindow, cursor_position_callback);
 	glfwSetMouseButtonCallback(m_GLFWwindow, mouse_button_callback);
@@ -62,12 +61,17 @@ bool Window::IsClosed() const
 	return glfwWindowShouldClose(m_GLFWwindow);
 }
 
+void Window::DisableCursor(bool disable)
+{
+	if(disable)
+		glfwSetInputMode(m_GLFWwindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	else 
+		glfwSetInputMode(m_GLFWwindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+}
+
 void  Window::Update()
 {
 	glfwPollEvents();
-
-	if (Keyboard::IsKeyPressed(GLFW_KEY_ESCAPE))
-		Close();
 
 	int error = glGetError();
 	if (error != 0)

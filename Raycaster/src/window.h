@@ -14,11 +14,13 @@ public:
 	void Update();
 	void Close() const;
 	bool IsClosed() const;
+	void DisableCursor(bool disable);
 
 	inline int GetWidth() const { return m_Width; }
 	inline int GetHeight() const { return m_Height; }
 
 	inline static Window* GetWindow() { return INSTANCE; }
+	
 	
 private:
 	void Init();

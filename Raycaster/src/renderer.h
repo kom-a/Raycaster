@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include "glm/glm.hpp"
 #include "shader.h"
 #include "sprite.h"
@@ -22,6 +24,7 @@ public:
 	void DrawPlayer(const Player& player, int x_offset, int y_offset);
 	void DrawRect(int x, int y, int width, int height, const glm::ivec3& color);
 	void FillRect(int x, int y, int width, int height, const glm::ivec3& color);
+	void DrawString(int x, int y, std::string str, int fontSize);
 	void DrawHUD(const Player& player);
 	void DrawEnemy(const Enemy& enemy, const Player& player);
 	void Flush();
