@@ -22,6 +22,8 @@
 #include "enemies/mushroom.h"
 #include "enemies/skeleton.h"
 
+#include "audio/sound_manager.h"
+
 #include <glad/glad.h>
 
 enum class GAME_STATE
@@ -44,8 +46,8 @@ int main()
 	// Player player(4, 3, 3.1415f, "res/2.png", 250, 250);
 	const Camera* camera = player.GetCamera();
 
-	SpriteSheet sheet("res/spritesheet.bmp", 64, 64, false);
-	 //const Texture* sky = FileManager::LoadTexture("res/Nebula Blue.png");
+	SpriteSheet sheet("res/wolftextures.png", 64, 64, false);
+	//const Texture* sky = FileManager::LoadTexture("res/Nebula Blue.png");
 	const Texture* sky = FileManager::LoadTexture("res/sky2.jpg");
 	Map map("res/maps/map2.rcm");
 
@@ -74,10 +76,19 @@ int main()
 
 	ResourceManager::LoadSpriteSheet("res/Font.png", 10, 10, false, "Font");
 
+	SoundManager::Init();
+	SoundManager::Load("res/audio/Shot.wav", "shot");
+	SoundManager::Load("res/audio/xDeviruchi - The Icy Cave .wav", "mainTheme");
+	SoundManager::Load("res/audio/xDeviruchi - Take some rest and eat some food!.wav", "win");
+	SoundManager::Load("res/audio/xDeviruchi - The Final of The Fantasy.wav", "lost");
+
+	SoundManager::Loop("mainTheme");
+
 	Sprite princess("res/princess.png", 3, 3, 0.8f, true);
 
 	std::vector<Enemy*> enemies;
-	
+
+#if 1
 	{
 		enemies.push_back(new Goblin(glm::vec2(25.25f, 2.40f)));
 		enemies.push_back(new Goblin(glm::vec2(24.00f, 6.00f)));
@@ -159,6 +170,7 @@ int main()
 		enemies.push_back(new Skeleton(glm::vec2(9.50f, 8.50f)));
 		enemies.push_back(new Skeleton(glm::vec2(9.50f, 7.50f)));
 	}
+#endif
 
 	double lastTime = glfwGetTime();
 	double deltaTime = 0;
@@ -198,13 +210,15 @@ int main()
 				if (Mouse::IsButtonPressed(0)) // Left mouse button pressed
 				{
 					state = GAME_STATE::GAME;
+					SoundManager::StopAll();
+					SoundManager::Loop("mainTheme");
 				}
 			}
 			else if (mouseX > 0.4f && mouseX < 0.6f && mouseY > 0.55f && mouseY < 0.7f)
 			{
 				renderer.FillRect(240, 220, 10, 10, glm::ivec3(0));
 				if (Mouse::IsButtonPressed(0)) // Left mouse button pressed
-				{
+				{ 
 					window.Close();
 				}
 			}
@@ -290,19 +304,30 @@ int main()
 			renderer.DrawHUD(player);
 			
 			if (Keyboard::IsKeyPressed(GLFW_KEY_ESCAPE))
+			{
 				state = GAME_STATE::MENU;
-
+				SoundManager::StopAll();
+				SoundManager::Loop("mainTheme");
+			}
+			
 			if (glm::length(player.GetPosition() - princess.GetPosition()) < 1.0f)
 			{
 				state = GAME_STATE::WIN;
+				SoundManager::StopAll();
+				SoundManager::Play("win");
 			}
 
 			if (Keyboard::IsKeyPressed(' '))
 			{
 				std::cout << player.GetPosition().x << ", " << player.GetPosition().y << std::endl;
 			}
-			if (player.GetHealth() < 0)
+			if (player.GetHealth() <= 0)
+			{
 				state = GAME_STATE::LOSE;
+				SoundManager::StopAll();
+				SoundManager::Play("lost");
+			}
+				
 
 		} break;
 		case GAME_STATE::WIN:
@@ -331,6 +356,7 @@ int main()
 		
 		renderer.Flush();
 
+		SoundManager::Update();
 		window.Update();
 		fps++;
 	}

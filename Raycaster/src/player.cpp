@@ -4,7 +4,8 @@
 
 #include "input/input.h"
 #include "utils/filemanager.h"
-// #include "window.h"
+
+#include "audio/sound_manager.h"
 
 static constexpr float PI = 3.14159265359f;
 
@@ -53,6 +54,7 @@ void Player::TakeHit(int damage)
 void Player::Shoot(const Map& map, const std::vector<Enemy*>& enemies)
 {
 	m_ReadyToShoot = false;
+	SoundManager::Play("shot");
 
 	for (Enemy* e : enemies)
 	{
