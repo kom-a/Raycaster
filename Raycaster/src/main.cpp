@@ -42,7 +42,7 @@ int main()
 	Window window(width, height, "Raycaster");
 	Renderer renderer(width, height);
 
-	Player player(14.1f, 3.0f, 3.1415f, "res/2.png", 250, 250);
+	Player player(56.5f, 14.5f, 2 * 3.1415f, "res/2.png", 250, 250);
 	// Player player(4, 3, 3.1415f, "res/2.png", 250, 250);
 	const Camera* camera = player.GetCamera();
 
@@ -82,7 +82,7 @@ int main()
 	SoundManager::Load("res/audio/xDeviruchi - Take some rest and eat some food!.wav", "win");
 	SoundManager::Load("res/audio/xDeviruchi - The Final of The Fantasy.wav", "lost");
 
-	SoundManager::Loop("mainTheme");
+	//SoundManager::Loop("mainTheme");
 
 	Sprite princess("res/princess.png", 3, 3, 0.8f, true);
 
@@ -193,6 +193,11 @@ int main()
 			unprocessedTime = 0;
 		}
 
+		if (Keyboard::IsKeyPressed(' '))
+		{
+			std::cout << player.GetPosition().x << "\t" << player.GetPosition().y << std::endl;
+		}
+
 		switch (state)
 		{
 		case GAME_STATE::MENU:
@@ -211,7 +216,7 @@ int main()
 				{
 					state = GAME_STATE::GAME;
 					SoundManager::StopAll();
-					SoundManager::Loop("mainTheme");
+					//SoundManager::Loop("mainTheme");
 				}
 			}
 			else if (mouseX > 0.4f && mouseX < 0.6f && mouseY > 0.55f && mouseY < 0.7f)
@@ -307,7 +312,7 @@ int main()
 			{
 				state = GAME_STATE::MENU;
 				SoundManager::StopAll();
-				SoundManager::Loop("mainTheme");
+				//SoundManager::Loop("mainTheme");
 			}
 			
 			if (glm::length(player.GetPosition() - princess.GetPosition()) < 1.0f)

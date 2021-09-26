@@ -21,7 +21,7 @@ Player::Player(float x, float y, float angle, const char* filename, int textureW
 	m_ReadyToShoot(true),
 	m_MaxHealth(100),
 	m_Health(m_MaxHealth),
-	m_Damage(10)
+	m_Damage(25)
 {
 	m_Camera = new Camera(PI / 3);
 	m_SpriteSheet = new SpriteSheet(filename, textureWidth, textureHeight, false);

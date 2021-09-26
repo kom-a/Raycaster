@@ -28,6 +28,20 @@ public:
 	void Update(double deltaTime, Player& player, const Map& map) override
 	{
 		Enemy::Update(deltaTime, player, map);
+		const float hitDistance = 0.5f;
+		for (MagicBall* m : m_Bullets)
+		{
+			if (m->IsDestroyed()) continue;
+			m->Update(deltaTime);
+			float bulletToPlayerDistance = glm::length(player.GetPosition() - m->GetPosition());
+
+			if (bulletToPlayerDistance < hitDistance)
+			{
+				player.TakeHit(m_Damage);
+				m->Destroy();
+			}
+		}
+
 		if (m_State == EnemyState::Death) return;
 		m_Timer += deltaTime;
 
@@ -71,19 +85,7 @@ public:
 		if (m_Timer >= m_ReloadingTime)
 			m_Timer = 0;
 		
-		const float hitDistance = 0.5f;
-		for (MagicBall* m : m_Bullets)
-		{
-			if(m->IsDestroyed()) continue;
-			m->Update(deltaTime);
-			float bulletToPlayerDistance = glm::length(player.GetPosition() - m->GetPosition());
-
-			if (bulletToPlayerDistance < hitDistance)
-			{
-				player.TakeHit(m_Damage);
-				m->Destroy();
-			}
-		}
+		
 	}
 
 	void TakeHit(int damage) override
@@ -91,7 +93,7 @@ public:
 		Enemy::TakeHit(damage);
 		if (m_Health == 0)
 		{
-			m_Bullets.clear();
+			
 		}
 	}
 
