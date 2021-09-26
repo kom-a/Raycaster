@@ -8,3 +8,4 @@ Simple raycaster game written in c++ using OpenGL.
 ## Dependencies
 
 1. GLFW
+2. Gorilla audio
